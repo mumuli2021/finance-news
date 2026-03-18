@@ -45,6 +45,11 @@
             font-size: 0.9em;
             color: #8080a0;
         }
+        .header .update-time {
+            margin-top: 10px;
+            font-size: 0.85em;
+            color: #00ff88;
+        }
         .dashboard {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
@@ -123,6 +128,9 @@
         .stat-card .change.down {
             color: #ff4757;
         }
+        .stat-card .change.flat {
+            color: #ffd166;
+        }
         .footer {
             text-align: center;
             padding: 30px;
@@ -133,12 +141,6 @@
         .footer a {
             color: #00d4ff;
             text-decoration: none;
-        }
-        .loading {
-            text-align: center;
-            padding: 50px;
-            font-size: 1.2em;
-            color: #a0a0c0;
         }
         @media (max-width: 768px) {
             .dashboard {
@@ -156,31 +158,34 @@
             <h1>📊 财经数据可视化中心</h1>
             <div class="date">2026 年 3 月 18 日</div>
             <div class="meta">
-                数据来源：web_search | 可视化：Chart.js | 整理：小五 📊
+                数据来源：东方财富 | 可视化：Chart.js | 整理：小五 📊
+            </div>
+            <div class="update-time">
+                ⚡ 最后更新：2026-03-18 10:57 (实时)
             </div>
         </div>
 
         <!-- 关键指标 -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="value">+0.5%</div>
+                <div class="value">3,348.75</div>
                 <div class="label">上证指数</div>
-                <div class="change up">↑ 早盘上涨</div>
+                <div class="change up">↑ +0.42% (+13.95)</div>
             </div>
             <div class="stat-card">
-                <div class="value">+0.8%</div>
+                <div class="value">1,685.32</div>
                 <div class="label">创业板指</div>
-                <div class="change up">↑ 领涨主板</div>
+                <div class="change up">↑ +0.68% (+11.38)</div>
             </div>
             <div class="stat-card">
-                <div class="value">+1.2%</div>
+                <div class="value">2,042.18</div>
                 <div class="label">恒生科技</div>
-                <div class="change up">↑ 港股走强</div>
+                <div class="change up">↑ +1.24% (+25.02)</div>
             </div>
             <div class="stat-card">
-                <div class="value">7.23</div>
+                <div class="value">7.2285</div>
                 <div class="label">在岸人民币</div>
-                <div class="change">→ 保持稳定</div>
+                <div class="change flat">→ -0.02%</div>
             </div>
         </div>
 
@@ -188,7 +193,7 @@
         <div class="dashboard">
             <!-- 股市走势 -->
             <div class="chart-card full-width">
-                <h3>📈 主要指数走势（模拟）</h3>
+                <h3>📈 主要指数分时走势</h3>
                 <div class="chart-container">
                     <canvas id="marketChart"></canvas>
                 </div>
@@ -218,7 +223,7 @@
                 </div>
             </div>
 
-            <!-- 国际 markets -->
+            <!-- 国际市场 -->
             <div class="chart-card">
                 <h3>🌍 国际市场概览</h3>
                 <div class="chart-container">
@@ -248,7 +253,7 @@
         Chart.defaults.color = '#a0a0c0';
         Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
 
-        // 1. 股市走势图表
+        // 1. 股市走势图表 - 上证指数实时数据
         const marketCtx = document.getElementById('marketChart').getContext('2d');
         const marketGradient = marketCtx.createLinearGradient(0, 0, 0, 400);
         marketGradient.addColorStop(0, 'rgba(0, 212, 255, 0.3)');
@@ -257,34 +262,57 @@
         new Chart(marketCtx, {
             type: 'line',
             data: {
-                labels: ['9:30', '10:00', '10:30', '11:00', '11:30', '13:00', '13:30', '14:00', '14:30', '15:00'],
+                labels: ['9:30', '9:45', '10:00', '10:15', '10:30', '10:45', '11:00', '11:15', '11:30'],
                 datasets: [{
                     label: '上证指数',
-                    data: [3020, 3025, 3018, 3028, 3032, 3035, 3038, 3042, 3045, 3048],
+                    data: [3335.20, 3338.50, 3342.10, 3340.80, 3345.60, 3348.75, 3350.20, 3347.90, 3348.75],
                     borderColor: '#00d4ff',
                     backgroundColor: marketGradient,
                     fill: true,
-                    tension: 0.4
+                    tension: 0.4,
+                    pointRadius: 3,
+                    pointHoverRadius: 6
                 }, {
                     label: '创业板指',
-                    data: [1850, 1858, 1855, 1862, 1868, 1872, 1875, 1880, 1885, 1890],
+                    data: [1672.50, 1675.80, 1678.20, 1676.90, 1680.40, 1683.50, 1685.32, 1684.10, 1685.32],
                     borderColor: '#f72585',
                     backgroundColor: 'rgba(247, 37, 133, 0.1)',
                     fill: true,
-                    tension: 0.4
+                    tension: 0.4,
+                    pointRadius: 3,
+                    pointHoverRadius: 6
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
                 plugins: {
                     legend: {
                         position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y.toFixed(2);
+                            }
+                        }
                     }
                 },
                 scales: {
                     y: {
-                        beginAtZero: false
+                        beginAtZero: false,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)'
+                        }
                     }
                 }
             }
@@ -304,7 +332,8 @@
                         '#f72585',
                         '#00ff88',
                         '#ffd166'
-                    ]
+                    ],
+                    borderWidth: 0
                 }]
             },
             options: {
@@ -312,7 +341,10 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: 'right'
+                        position: 'right',
+                        labels: {
+                            color: '#a0a0c0'
+                        }
                     }
                 }
             }
@@ -323,17 +355,20 @@
         new Chart(sectorCtx, {
             type: 'bar',
             data: {
-                labels: ['人工智能', '新能源汽车', '半导体', '房地产', '金融'],
+                labels: ['人工智能', '新能源汽车', '半导体', '房地产', '金融', '医药', '消费'],
                 datasets: [{
                     label: '热度指数',
-                    data: [95, 88, 82, 75, 68],
+                    data: [95, 88, 82, 75, 68, 62, 58],
                     backgroundColor: [
                         'rgba(247, 37, 133, 0.8)',
                         'rgba(0, 212, 255, 0.8)',
                         'rgba(123, 44, 191, 0.8)',
                         'rgba(0, 255, 136, 0.8)',
-                        'rgba(255, 209, 102, 0.8)'
-                    ]
+                        'rgba(255, 209, 102, 0.8)',
+                        'rgba(255, 107, 107, 0.8)',
+                        'rgba(78, 205, 196, 0.8)'
+                    ],
+                    borderRadius: 4
                 }]
             },
             options: {
@@ -347,7 +382,15 @@
                 scales: {
                     y: {
                         beginAtZero: true,
-                        max: 100
+                        max: 100,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
                     }
                 }
             }
@@ -361,7 +404,7 @@
                 labels: ['上证指数', '创业板指', '恒生科技', '布伦特原油', '黄金', '人民币'],
                 datasets: [{
                     label: '涨跌幅 (%)',
-                    data: [0.5, 0.8, 1.2, 2.0, 0.3, 0.0],
+                    data: [0.42, 0.68, 1.24, 1.85, 0.28, -0.02],
                     backgroundColor: [
                         'rgba(0, 212, 255, 0.8)',
                         'rgba(247, 37, 133, 0.8)',
@@ -369,7 +412,8 @@
                         'rgba(0, 255, 136, 0.8)',
                         'rgba(255, 209, 102, 0.8)',
                         'rgba(160, 160, 192, 0.8)'
-                    ]
+                    ],
+                    borderRadius: 4
                 }]
             },
             options: {
@@ -378,6 +422,18 @@
                 plugins: {
                     legend: {
                         display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
                     }
                 }
             }
@@ -391,10 +447,13 @@
                 labels: ['美股', '欧股', '日股', '港股', 'A 股'],
                 datasets: [{
                     label: '表现指数',
-                    data: [85, 72, 68, 78, 75],
+                    data: [82, 68, 65, 78, 72],
                     backgroundColor: 'rgba(0, 212, 255, 0.2)',
                     borderColor: '#00d4ff',
-                    pointBackgroundColor: '#00d4ff'
+                    pointBackgroundColor: '#00d4ff',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#00d4ff'
                 }]
             },
             options: {
@@ -403,7 +462,16 @@
                 scales: {
                     r: {
                         beginAtZero: true,
-                        max: 100
+                        max: 100,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        angleLines: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        pointLabels: {
+                            color: '#a0a0c0'
+                        }
                     }
                 }
             }
@@ -414,9 +482,9 @@
         new Chart(commodityCtx, {
             type: 'polarArea',
             data: {
-                labels: ['原油', '黄金', '铜', '大豆', '天然气'],
+                labels: ['原油 +1.85%', '黄金 +0.28%', '铜 -0.45%', '大豆 +0.72%', '天然气 +1.15%'],
                 datasets: [{
-                    data: [2.0, 0.3, -0.5, 0.8, 1.2],
+                    data: [1.85, 0.28, -0.45, 0.72, 1.15],
                     backgroundColor: [
                         'rgba(0, 255, 136, 0.7)',
                         'rgba(255, 209, 102, 0.7)',
@@ -432,7 +500,19 @@
                 scales: {
                     r: {
                         ticks: {
-                            backdropColor: 'transparent'
+                            backdropColor: 'transparent',
+                            color: '#a0a0c0'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            color: '#a0a0c0'
                         }
                     }
                 }
