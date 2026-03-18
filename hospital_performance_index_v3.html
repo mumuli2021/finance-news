@@ -320,6 +320,30 @@
             <div class="kpi-card"><div class="number" id="inpatientCount">9</div><div class="label">住院层面</div><div class="unit">住院指标</div></div>
         </div>
 
+        <!-- 基础数据输入 -->
+        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:25px;margin-bottom:30px;">
+            <h3 style="color:#00d4ff;margin-bottom:20px;font-size:1.3em">📊 基础数据输入</h3>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px">
+                <div>
+                    <label style="display:block;color:#fff;margin-bottom:8px">💰 门诊收入（元）</label>
+                    <input type="number" id="outpatientIncome" value="1000000" style="width:100%;padding:12px;border:1px solid rgba(0,212,255,0.3);border-radius:8px;background:rgba(0,212,255,0.1);color:#fff;font-size:1em" onchange="recalculate()">
+                </div>
+                <div>
+                    <label style="display:block;color:#fff;margin-bottom:8px">👥 门急诊人次数</label>
+                    <input type="number" id="outpatientVisits" value="5000" style="width:100%;padding:12px;border:1px solid rgba(0,212,255,0.3);border-radius:8px;background:rgba(0,212,255,0.1);color:#fff;font-size:1em" onchange="recalculate()">
+                </div>
+                <div>
+                    <label style="display:block;color:#fff;margin-bottom:8px">🛏️ 住院收入（元）</label>
+                    <input type="number" id="inpatientIncome" value="2000000" style="width:100%;padding:12px;border:1px solid rgba(0,212,255,0.3);border-radius:8px;background:rgba(0,212,255,0.1);color:#fff;font-size:1em" onchange="recalculate()">
+                </div>
+                <div>
+                    <label style="display:block;color:#fff;margin-bottom:8px">📅 实际占用床日数</label>
+                    <input type="number" id="bedDays" value="3000" style="width:100%;padding:12px;border:1px solid rgba(0,212,255,0.3);border-radius:8px;background:rgba(0,212,255,0.1);color:#fff;font-size:1em" onchange="recalculate()">
+                </div>
+            </div>
+            <button onclick="recalculate()" style="margin-top:20px;padding:12px 30px;background:linear-gradient(135deg,rgba(0,212,255,0.2),rgba(0,255,136,0.2));border:1px solid rgba(0,255,136,0.4);border-radius:20px;color:#fff;cursor:pointer;font-size:1em;font-weight:600">🔄 重新计算指标</button>
+        </div>
+
         <div class="gauge-container">
             <div class="gauge-card"><div id="gauge1" class="gauge-chart"></div><p style="margin-top:10px;color:#a0a0c0;">医疗收入增长率</p></div>
             <div class="gauge-card"><div id="gauge2" class="gauge-chart"></div><p style="margin-top:10px;color:#a0a0c0;">床位使用率</p></div>
@@ -685,6 +709,38 @@
                 }
             };
             reader.readAsText(file, 'UTF-8');
+        }
+        
+        // 基础数据
+        let baseData = {
+            outpatientIncome: 1000000,
+            outpatientVisits: 5000,
+            inpatientIncome: 2000000,
+            bedDays: 3000
+        };
+        
+        // 重新计算指标
+        function recalculate() {
+            baseData.outpatientIncome = parseFloat(document.getElementById('outpatientIncome').value) || 0;
+            baseData.outpatientVisits = parseFloat(document.getElementById('outpatientVisits').value) || 0;
+            baseData.inpatientIncome = parseFloat(document.getElementById('inpatientIncome').value) || 0;
+            baseData.bedDays = parseFloat(document.getElementById('bedDays').value) || 0;
+            
+            // 更新指标数据
+            metricsData.forEach(m => {
+                if (m.name === '门急诊均次费用' && baseData.outpatientVisits > 0) {
+                    m.current = baseData.outpatientIncome / baseData.outpatientVisits;
+                }
+                if (m.name === '床日费' && baseData.bedDays > 0) {
+                    m.current = baseData.inpatientIncome / baseData.bedDays;
+                }
+            });
+            
+            // 重新渲染
+            renderTree(currentLevel);
+            renderLevelChart(currentLevel);
+            
+            alert('✅ 计算完成！\n\n门诊收入：' + baseData.outpatientIncome.toLocaleString() + '元\n门急诊人次：' + baseData.outpatientVisits.toLocaleString() + '\n住院收入：' + baseData.inpatientIncome.toLocaleString() + '元\n占用床日：' + baseData.bedDays.toLocaleString() + '\n\n门急诊均次费用：' + (baseData.outpatientIncome/baseData.outpatientVisits).toFixed(2) + '元\n床日费：' + (baseData.inpatientIncome/baseData.bedDays).toFixed(2) + '元');
         }
         
         // 导出 PDF 功能
