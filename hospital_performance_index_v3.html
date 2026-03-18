@@ -296,6 +296,13 @@
             <div class="subtitle">成本效益类指标体系可视化</div>
             <div class="meta">数据来源：医院 HIS 系统 | 整理：小五 📊 | 版本：金算盘</div>
             <div class="update-time">⚡ 最后更新：<span id="lastUpdateTime"></span></div>
+            
+            <!-- 标签页导航 -->
+            <div class="tabs-nav">
+                <button class="tab-link active" data-tab="dashboard">📊 绩效指标</button>
+                <button class="tab-link" data-tab="finance">💰 财务分析</button>
+            </div>
+            
             <div class="action-buttons">
                 <a href="data_input.html" class="action-btn" style="background:linear-gradient(135deg,rgba(123,44,191,0.15),rgba(155,89,182,0.15));border-color:rgba(155,89,182,0.4)">📊 基础数据输入</a>
                 <button class="action-btn print" onclick="window.print()">🖨️ 打印报告</button>
@@ -872,6 +879,122 @@
         // 初始化：加载 localStorage 数据并计算指标
         loadBaseData();
         updateAllMetrics();
+        
+        // 标签页切换
+        document.querySelectorAll('.tab-link').forEach(link => {
+            link.addEventListener('click', function() {
+                document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+                
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                    document.getElementById('dashboard').classList.add('active');
+                });
+                
+                const tabId = this.dataset.tab;
+                if (tabId === 'finance') {
+                    document.getElementById('dashboard').classList.remove('active');
+                    document.getElementById('finance').classList.add('active');
+                    renderFinanceCharts();
+                } else {
+                    document.getElementById('dashboard').classList.add('active');
+                    document.getElementById('finance').classList.remove('active');
+                }
+            });
+        });
+        
+        // 渲染财务图表
+        function renderFinanceCharts() {
+            console.log('渲染财务分析图表...');
+            
+            // 收入结构图
+            const incomeCtx = document.getElementById('incomeStructureChart').getContext('2d');
+            if (window.incomeChart) window.incomeChart.destroy();
+            window.incomeChart = new Chart(incomeCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['医疗收入', '药品收入', '检查化验收入', '其他收入'],
+                    datasets: [{
+                        data: [60, 23, 18, 5],
+                        backgroundColor: ['rgba(0,212,255,0.8)', 'rgba(231,76,60,0.8)', 'rgba(0,255,136,0.8)', 'rgba(255,209,102,0.8)']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { color: '#fff' } }
+                    }
+                }
+            });
+            
+            // 支出结构图
+            const expenseCtx = document.getElementById('expenseStructureChart').getContext('2d');
+            if (window.expenseChart) window.expenseChart.destroy();
+            window.expenseChart = new Chart(expenseCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['人员支出', '药品支出', '卫生材料', '管理费用', '其他支出'],
+                    datasets: [{
+                        label: '支出金额（元）',
+                        data: [43, 23, 7.5, 5, 21.5],
+                        backgroundColor: 'rgba(231,76,60,0.8)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } },
+                        x: { grid: { display: false }, ticks: { color: '#fff' } }
+                    }
+                }
+            });
+            
+            // 财务趋势图
+            const trendCtx = document.getElementById('financeTrendChart').getContext('2d');
+            if (window.trendChart) window.trendChart.destroy();
+            window.trendChart = new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['1 月', '2 月', '3 月', '4 月', '5 月', '6 月', '7 月', '8 月', '9 月', '10 月', '11 月', '12 月'],
+                    datasets: [
+                        {
+                            label: '收入（万元）',
+                            data: [280, 320, 350, 380, 420, 450, 480, 520, 550, 580, 620, 650],
+                            borderColor: '#00d4ff',
+                            backgroundColor: 'rgba(0,212,255,0.1)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: '支出（万元）',
+                            data: [260, 290, 320, 350, 380, 410, 440, 470, 500, 530, 560, 590],
+                            borderColor: '#e74c3c',
+                            backgroundColor: 'rgba(231,76,60,0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { color: '#fff' } }
+                    },
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } },
+                        x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } }
+                    }
+                }
+            });
+            
+            console.log('✅ 财务分析图表已渲染');
+        }
         
         initGauges();
         renderTree('all');
