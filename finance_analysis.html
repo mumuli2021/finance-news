@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>医院绩效指标平台 | 成本效益类指标</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #1a1a2e 50%, #0f3460 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container { max-width: 1600px; margin: 0 auto; }
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #00d4ff, #00ff88, #f72585);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+        .header .subtitle { font-size: 1.2em; color: #b0b0d0; margin-bottom: 15px; }
+        .header .meta { font-size: 0.9em; color: #8080a0; }
+        .header .update-time { margin-top: 15px; font-size: 0.9em; color: #00ff88; }
+        
+        .action-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            background: rgba(0, 212, 255, 0.15);
+            border: 1px solid rgba(0, 212, 255, 0.4);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+        .action-btn:hover {
+            background: rgba(0, 212, 255, 0.25);
+            transform: translateY(-2px);
+        }
+        .action-btn.print {
+            background: rgba(0, 255, 136, 0.15);
+            border-color: rgba(0, 255, 136, 0.4);
+        }
+        .action-btn.print:hover {
+            background: rgba(0, 255, 136, 0.25);
+        }
+        
+        .level-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .tab-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #a0a0c0;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tab-btn:hover { background: rgba(0,212,255,0.1); border-color: rgba(0,212,255,0.3); color: #fff; }
+        .tab-btn.active {
+            background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(123,44,191,0.2));
+            border-color: rgba(0,212,255,0.5);
+            color: #fff;
+        }
+        
+        .kpi-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .kpi-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+        }
+        .kpi-card .number {
+            font-size: 2.8em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #00d4ff, #f72585);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .kpi-card .label { color: #a0a0c0; margin-top: 10px; }
+        .kpi-card .unit { color: #8080a0; font-size: 0.85em; margin-top: 5px; }
+        
+        .gauge-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .gauge-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+        }
+        .gauge-chart { width: 100%; height: 160px; }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .chart-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 25px;
+        }
+        .chart-card h3 {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            color: #00d4ff;
+        }
+        .chart-container { position: relative; height: 300px; }
+        .full-width { grid-column: 1 / -1; }
+        
+        /* 指标树菜单 */
+        .metrics-tree {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        .metrics-tree h3 { font-size: 1.2em; margin-bottom: 20px; color: #00d4ff; }
+        .tree-group { margin-bottom: 15px; }
+        .tree-header {
+            background: rgba(0,212,255,0.1);
+            border: 1px solid rgba(0,212,255,0.3);
+            border-radius: 12px;
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+        }
+        .tree-header:hover {
+            background: rgba(0,212,255,0.15);
+            border-color: rgba(0,212,255,0.5);
+        }
+        .tree-header .title {
+            font-size: 1.05em;
+            font-weight: 600;
+            color: #00d4ff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .tree-header .count {
+            background: rgba(0,212,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            color: #fff;
+        }
+        .tree-header .arrow {
+            font-size: 1.2em;
+            transition: transform 0.3s;
+            color: #00d4ff;
+        }
+        .tree-header.active .arrow { transform: rotate(90deg); }
+        .tree-items {
+            display: none;
+            margin-left: 20px;
+        }
+        .tree-items.show { display: block; }
+        .tree-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-left: 3px solid rgba(0,212,255,0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        .tree-item:hover {
+            background: rgba(0,212,255,0.08);
+            border-left-color: #00d4ff;
+            transform: translateX(5px);
+        }
+        .tree-item .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .tree-item .item-name {
+            font-size: 1em;
+            font-weight: 600;
+            color: #fff;
+        }
+        .tree-item .item-code {
+            background: rgba(0,212,255,0.15);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            color: #00d4ff;
+        }
+        .tree-item .item-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .tree-item .detail { font-size: 0.85em; color: #a0a0c0; }
+        .tree-item .detail strong { color: #00ff88; }
+        .tree-item .formula {
+            background: rgba(0,255,136,0.05);
+            border-left: 3px solid rgba(0,255,136,0.3);
+            padding: 10px 15px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.85em;
+            color: #00ff88;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .category-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        .cat-business { background: linear-gradient(135deg, #00d4ff, #0099cc); color: #fff; }
+        .cat-cost { background: linear-gradient(135deg, #f72585, #c51162); color: #fff; }
+        .cat-efficiency { background: linear-gradient(135deg, #00ff88, #00cc6a); color: #1a1a2e; }
+        .cat-development { background: linear-gradient(135deg, #7b2cbf, #5a189a); color: #fff; }
+        
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #8080a0;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .footer a { color: #00d4ff; text-decoration: none; }
+        
+        @media print {
+            body { background: #fff !important; color: #000 !important; }
+            .level-tabs, .action-buttons, .footer { display: none !important; }
+            .header { background: #fff !important; border: none !important; }
+            .header h1 { color: #1a1a2e !important; -webkit-text-fill-color: #1a1a2e !important; }
+            .chart-card, .kpi-card, .gauge-card { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; background: #fff; }
+        }
+        @media (max-width: 768px) {
+            .dashboard { grid-template-columns: 1fr; }
+            .header h1 { font-size: 1.8em; }
+            .kpi-summary { grid-template-columns: repeat(2, 1fr); }
+            .gauge-container { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 财务分析平台</h1>
+            <div class="subtitle">小四财务分析方案</div>
+            <div class="meta">数据来源：医院采集系统｜提供者：小四 (CFO)｜版本：V1.0</div>
+            
+            <!-- 返回首页按钮 -->
+            <div class="home-nav">
+                <a href="hospital_performance_index_v3.html" class="action-btn" style="background:rgba(123,44,191,0.15);border-color:rgba(123,44,191,0.4)">🏠 返回综合平台</a>
+            </div>
+            <div class="action-buttons">
+                <button class="action-btn print" onclick="window.print()">🖨️ 打印报告</button>
+                <button class="action-btn" onclick="location.reload()">🔄 刷新数据</button>
+            </div>
+        </div>
+        
+        <!-- 财务分析内容 -->
+        <div class="tab-content active">
+<!-- 财务分析标签页内容（小四方案） -->
+        <div id="finance" class="tab-content">
+            <div class="data-section">
+                <h2>💰 财务健康度评估</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="value" id="fh-surplusRate">12.5</div>
+                        <div class="label">收支结余率（%）</div>
+                        <div class="hint">优秀：≥15% | 健康：≥10%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="fh-debtRatio">45.2</div>
+                        <div class="label">资产负债率（%）</div>
+                        <div class="hint">安全：<50% | 预警：≥70%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="fh-currentRatio">1.8</div>
+                        <div class="label">流动比率（倍）</div>
+                        <div class="hint">健康：≥1.5 | 优秀：≥2</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="fh-cashFlowRatio">25.3</div>
+                        <div class="label">现金流动负债比（%）</div>
+                        <div class="hint">健康：≥20% | 优秀：≥30%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="data-section">
+                <h2>📊 盈利能力分析</h2>
+                <div class="chart-container" style="height:350px">
+                    <canvas id="profitabilityChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="data-section">
+                <h2>💹 成本结构分析</h2>
+                <div class="chart-container" style="height:350px">
+                    <canvas id="costStructureChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="data-section">
+                <h2>📈 投资回报分析</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="value" id="roi-bed">18.5</div>
+                        <div class="label">床位 ROI（%）</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="roi-device">22.3</div>
+                        <div class="label">设备 ROI（%）</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="roi-percapita">35.8</div>
+                        <div class="label">人均创收（万元）</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="roe">15.2</div>
+                        <div class="label">ROE（%）</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="data-section">
+                <h2>⚠️ 财务风险预警</h2>
+                <div id="riskWarning" class="risk-cards">
+                    <!-- 风险预警卡片由 JS 动态生成 -->
+                </div>
+            </div>
+        </div>        
+        <div class="footer">
+            <p><strong>小四 · CFO</strong> | 2026-03-18</p>
+            <button class="action-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" style="margin-top:15px;background:rgba(123,44,191,0.15);border-color:rgba(123,44,191,0.4)">🔝 返回顶部</button>
+        </div>
+    </div>
+    <script>
+        // 渲染财务图表
+// 渲染财务分析图表（小四方案）
+        function renderFinanceCharts() {
+            console.log('渲染小四财务分析图表...');
+            
+            // 1. 盈利能力分析图
+            const profitCtx = document.getElementById('profitabilityChart').getContext('2d');
+            if (window.profitChart) window.profitChart.destroy();
+            window.profitChart = new Chart(profitCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['门诊利润率', '住院利润率', '药品依赖度', '收入质量', '检查化验占比'],
+                    datasets: [{
+                        label: '指标值（%）',
+                        data: [12, 18, 23, 60, 18],
+                        backgroundColor: [
+                            'rgba(0,212,255,0.8)',
+                            'rgba(0,255,136,0.8)',
+                            'rgba(231,76,60,0.8)',
+                            'rgba(123,44,191,0.8)',
+                            'rgba(255,209,102,0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } },
+                        x: { grid: { display: false }, ticks: { color: '#fff' } }
+                    }
+                }
+            });
+            
+            // 2. 成本结构分析图
+            const costCtx = document.getElementById('costStructureChart').getContext('2d');
+            if (window.costChart) window.costChart.destroy();
+            window.costChart = new Chart(costCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['人员支出', '药品支出', '卫生材料', '管理费用', '其他支出'],
+                    datasets: [{
+                        data: [43, 23, 7.5, 5, 21.5],
+                        backgroundColor: [
+                            'rgba(231,76,60,0.8)',
+                            'rgba(0,212,255,0.8)',
+                            'rgba(0,255,136,0.8)',
+                            'rgba(255,209,102,0.8)',
+                            'rgba(123,44,191,0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { color: '#fff' } }
+                    }
+                }
+            });
+            
+            // 3. 风险预警卡片
+            const riskData = [
+                { title: '现金流预警', desc: '经营活动现金净流量/流动负债 < 10%', level: 'high' },
+                { title: '资产负债率偏高', desc: '当前 45.2%，接近 50% 警戒线', level: 'medium' },
+                { title: '药品依赖度', desc: '药品收入占比 23%，控制良好', level: 'low' }
+            ];
+            
+            const riskHtml = riskData.map(risk => `
+                <div class="risk-card ${risk.level}">
+                    <div class="title">⚠️ ${risk.title}</div>
+                    <div class="desc">${risk.desc}</div>
+                    <span class="level ${risk.level}">${risk.level === 'high' ? '高风险' : risk.level === 'medium' ? '中风险' : '低风险'}</span>
+                </div>
+            `).join('');
+            
+            document.getElementById('riskWarning').innerHTML = riskHtml;
+            
+            console.log('✅ 小四财务分析图表已渲染');
+        }
+
+        // 页面加载时渲染图表
+        window.addEventListener('load', function() {
+            setTimeout(renderFinanceCharts, 500);
+        });
+    </script>
+</body>
+</html>

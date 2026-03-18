@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>医院绩效指标平台 | 成本效益类指标</title>
+    <title>医院绩效指标平台 | 小五指标体系</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -297,16 +297,9 @@
             <div class="meta">数据来源：医院 HIS 系统 | 整理：小五 📊 | 版本：金算盘</div>
             <div class="update-time">⚡ 最后更新：<span id="lastUpdateTime"></span></div>
             
-            <!-- 标签页导航 -->
-            <div class="tabs-nav">
-                <button class="tab-link active" data-tab="dashboard">📊 绩效指标</button>
-                <button class="tab-link" data-tab="finance">💰 财务分析</button>
-            </div>
-            
-            <!-- 独立页面访问按钮 -->
-            <div class="page-links">
-                <a href="performance_index.html" class="page-link-btn" target="_blank">🔗 绩效指标独立页面</a>
-                <a href="finance_analysis.html" class="page-link-btn" target="_blank">🔗 财务分析独立页面</a>
+            <!-- 返回首页按钮 -->
+            <div class="home-nav">
+                <a href="hospital_performance_index_v3.html" class="action-btn" style="background:rgba(123,44,191,0.15);border-color:rgba(123,44,191,0.4)">🏠 返回综合平台</a>
             </div>
             
             <div class="action-buttons">
@@ -393,77 +386,6 @@
 
         </div>
         
-        <!-- 财务分析标签页内容（小四方案） -->
-        <div id="finance" class="tab-content">
-            <div class="data-section">
-                <h2>💰 财务健康度评估</h2>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="value" id="fh-surplusRate">12.5</div>
-                        <div class="label">收支结余率（%）</div>
-                        <div class="hint">优秀：≥15% | 健康：≥10%</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="value" id="fh-debtRatio">45.2</div>
-                        <div class="label">资产负债率（%）</div>
-                        <div class="hint">安全：<50% | 预警：≥70%</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="value" id="fh-currentRatio">1.8</div>
-                        <div class="label">流动比率（倍）</div>
-                        <div class="hint">健康：≥1.5 | 优秀：≥2</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="value" id="fh-cashFlowRatio">25.3</div>
-                        <div class="label">现金流动负债比（%）</div>
-                        <div class="hint">健康：≥20% | 优秀：≥30%</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="data-section">
-                <h2>📊 盈利能力分析</h2>
-                <div class="chart-container" style="height:350px">
-                    <canvas id="profitabilityChart"></canvas>
-                </div>
-            </div>
-            
-            <div class="data-section">
-                <h2>💹 成本结构分析</h2>
-                <div class="chart-container" style="height:350px">
-                    <canvas id="costStructureChart"></canvas>
-                </div>
-            </div>
-            
-            <div class="data-section">
-                <h2>📈 投资回报分析</h2>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="value" id="roi-bed">18.5</div>
-                        <div class="label">床位 ROI（%）</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="value" id="roi-device">22.3</div>
-                        <div class="label">设备 ROI（%）</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="value" id="roi-percapita">35.8</div>
-                        <div class="label">人均创收（万元）</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="value" id="roe">15.2</div>
-                        <div class="label">ROE（%）</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="data-section">
-                <h2>⚠️ 财务风险预警</h2>
-                <div id="riskWarning" class="risk-cards">
-                    <!-- 风险预警卡片由 JS 动态生成 -->
-                </div>
-            </div>
-        </div>
         
         <div class="footer">
             <p><strong>小五 · 首席数据官</strong> | 2026-03-18</p>
