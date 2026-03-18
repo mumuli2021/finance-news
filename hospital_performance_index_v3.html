@@ -324,7 +324,16 @@
 
         <div class="dashboard">
             <div class="chart-card"><h3>📊 指标分类</h3><div class="chart-container"><canvas id="categoryChart"></canvas></div></div>
-            <div class="chart-card"><h3>🏗️ 层面分布</h3><div class="chart-container"><canvas id="levelChart"></canvas></div></div>
+            <div class="chart-card full-width">
+                <h3>🏗️ 层面分布</h3>
+                <div style="display:flex;gap:10px;margin-bottom:15px;flex-wrap:wrap">
+                    <button class="action-btn level-filter active" data-level="all" style="padding:8px 16px;font-size:0.85em">全部</button>
+                    <button class="action-btn level-filter" data-level="unit" style="padding:8px 16px;font-size:0.85em;background:rgba(0,212,255,0.15);border-color:rgba(0,212,255,0.4)">🏥 单位层面</button>
+                    <button class="action-btn level-filter" data-level="outpatient" style="padding:8px 16px;font-size:0.85em;background:rgba(247,37,133,0.15);border-color:rgba(247,37,133,0.4)">🚪 门诊科室</button>
+                    <button class="action-btn level-filter" data-level="inpatient" style="padding:8px 16px;font-size:0.85em;background:rgba(0,255,136,0.15);border-color:rgba(0,255,136,0.4)">🛏️ 住院科室</button>
+                </div>
+                <div class="chart-container"><canvas id="levelChart"></canvas></div>
+            </div>
             <div class="chart-card full-width"><h3>📈 月度趋势</h3><div class="chart-container" style="height:320px;"><canvas id="trendChart"></canvas></div></div>
             <div class="chart-card"><h3>📏 单位类型</h3><div class="chart-container"><canvas id="unitChart"></canvas></div></div>
             <div class="chart-card"><h3>🎪 覆盖度</h3><div class="chart-container"><canvas id="radarChart"></canvas></div></div>
@@ -415,40 +424,44 @@
                 options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#a0a0c0'}}}}
             });
 
-            // 层面分布 - 使用实际指标数据
-            const levelData = {
-                '单位层面': {name:'医疗收入增长率',current:8.5,target:10,unit:'%'},
-                '门诊科室': {name:'医疗服务占比',current:32,target:35,unit:'%'},
-                '住院科室': {name:'药品收入占比',current:23,target:25,unit:'%'}
+            // 层面分布 - 二级菜单 + 实际指标数据
+            const levelMetrics = {
+                'unit': {name:'🏥 单位层面',indicators:[{name:'医疗收入增长率',current:8.5,target:10},{name:'医疗服务占比',current:32,target:35},{name:'药品收入占比',current:23,target:25}]},
+                'outpatient': {name:'🚪 门诊科室',indicators:[{name:'门急诊均次费用',current:338,target:350},{name:'复诊率',current:27,target:25},{name:'门诊满意度',current:92,target:90}]},
+                'inpatient': {name:'🛏️ 住院科室',indicators:[{name:'床位使用率',current:95,target:93},{name:'平均住院天数',current:8.2,target:8.5},{name:'住院满意度',current:94,target:92}]}
             };
-            new Chart(document.getElementById('levelChart').getContext('2d'), {
-                type:'bar',
-                data:{
-                    labels:['单位层面','门诊科室','住院科室'],
-                    datasets:[
-                        {label:'当前值',data:[8.5,32,23],backgroundColor:'rgba(0,212,255,0.8)',borderRadius:8},
-                        {label:'目标值',data:[10,35,25],backgroundColor:'rgba(0,255,136,0.6)',borderRadius:8}
-                    ]
-                },
-                options:{
-                    responsive:true,
-                    maintainAspectRatio:false,
-                    plugins:{
-                        legend:{display:true,position:'top',labels:{color:'#fff'}},
-                        tooltip:{
-                            callbacks:{
-                                label:function(context){
-                                    const labels = ['医疗收入增长率','医疗服务占比','药品收入占比'];
-                                    return labels[context.dataIndex]+': '+context.parsed.y+'%';
-                                }
-                            }
-                        }
-                    },
-                    scales:{
-                        y:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.1)'},ticks:{color:'#fff'}},
-                        x:{grid:{display:false},ticks:{color:'#fff'}}
-                    }
+            let currentLevel = 'all';
+            function renderLevelChart(level='all') {
+                const ctx = document.getElementById('levelChart').getContext('2d');
+                if (window.levelChartInstance) window.levelChartInstance.destroy();
+                let labels, currentData, targetData;
+                if (level === 'all') {
+                    labels = ['单位层面','门诊科室','住院科室'];
+                    currentData = [8.5, 27, 95];
+                    targetData = [10, 25, 93];
+                } else {
+                    const data = levelMetrics[level];
+                    labels = data.indicators.map(i=>i.name);
+                    currentData = data.indicators.map(i=>i.current);
+                    targetData = data.indicators.map(i=>i.target);
                 }
+                window.levelChartInstance = new Chart(ctx, {
+                    type:'bar',
+                    data:{labels: labels, datasets:[
+                        {label:'当前值',data:currentData,backgroundColor:'rgba(0,212,255,0.8)',borderRadius:8},
+                        {label:'目标值',data:targetData,backgroundColor:'rgba(0,255,136,0.6)',borderRadius:8}
+                    ]},
+                    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top',labels:{color:'#fff'}}},
+                        scales:{y:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.1)'},ticks:{color:'#fff'}},x:{grid:{display:false},ticks:{color:'#fff'}}}}
+                });
+            }
+            renderLevelChart('all');
+            document.querySelectorAll('.level-filter').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.level-filter').forEach(b=>b.classList.remove('active'));
+                    this.classList.add('active');
+                    renderLevelChart(this.dataset.level);
+                });
             });
 
             new Chart(document.getElementById('trendChart').getContext('2d'), {
