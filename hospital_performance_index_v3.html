@@ -562,15 +562,20 @@
                     <div class="tree-items ${isShow}">`;
                 
                 items.forEach(item => {
-                    html += `<div class="tree-item">
+                    const hasValue = item.current !== undefined && item.current !== null;
+                    const isCalculated = item.calculated === true;
+                    const valueDisplay = hasValue ? (typeof item.current === 'number' ? item.current.toFixed(2) : item.current) : '待计算';
+                    
+                    html += `<div class="tree-item" style="${isCalculated?'border-left:3px solid #00ff88;background:rgba(0,255,136,0.08)':''}">
                         <div class="item-header">
-                            <span class="item-name">${item.name}</span>
+                            <span class="item-name">${item.name} ${isCalculated?'<span style="background:#00ff88;color:#1a1a2e;padding:2px 8px;border-radius:10px;font-size:0.75em;margin-left:8px">已计算</span>':''}</span>
                             <span class="item-code">编号：${item.code}</span>
                         </div>
                         <div class="item-details">
                             <div class="detail">单位：<strong>${item.unit}</strong></div>
                             <div class="detail">层面：<strong>${{'unit':'单位','outpatient':'门诊','inpatient':'住院'}[item.level]}</strong></div>
                             <div class="detail">分类：<strong>${item.category}</strong></div>
+                            ${hasValue ? '<div class="detail" style="color:#00ff88">当前值：<strong>' + valueDisplay + '</strong></div>' : ''}
                         </div>
                         <div class="formula">📐 ${item.formula}</div>
                     </div>`;
@@ -726,21 +731,30 @@
             baseData.inpatientIncome = parseFloat(document.getElementById('inpatientIncome').value) || 0;
             baseData.bedDays = parseFloat(document.getElementById('bedDays').value) || 0;
             
-            // 更新指标数据
+            // 计算结果
+            const avgOutpatientFee = baseData.outpatientVisits > 0 ? (baseData.outpatientIncome / baseData.outpatientVisits) : 0;
+            const bedDayFee = baseData.bedDays > 0 ? (baseData.inpatientIncome / baseData.bedDays) : 0;
+            
+            // 更新指标数据（添加计算结果到 current 字段）
             metricsData.forEach(m => {
-                if (m.name === '门急诊均次费用' && baseData.outpatientVisits > 0) {
-                    m.current = baseData.outpatientIncome / baseData.outpatientVisits;
+                if (m.name === '门急诊均次费用') {
+                    m.current = avgOutpatientFee;
+                    m.calculated = true;
                 }
-                if (m.name === '床日费' && baseData.bedDays > 0) {
-                    m.current = baseData.inpatientIncome / baseData.bedDays;
+                if (m.name === '床日费') {
+                    m.current = bedDayFee;
+                    m.calculated = true;
                 }
             });
             
-            // 重新渲染
+            // 重新渲染所有组件
             renderTree(currentLevel);
             renderLevelChart(currentLevel);
             
-            alert('✅ 计算完成！\n\n门诊收入：' + baseData.outpatientIncome.toLocaleString() + '元\n门急诊人次：' + baseData.outpatientVisits.toLocaleString() + '\n住院收入：' + baseData.inpatientIncome.toLocaleString() + '元\n占用床日：' + baseData.bedDays.toLocaleString() + '\n\n门急诊均次费用：' + (baseData.outpatientIncome/baseData.outpatientVisits).toFixed(2) + '元\n床日费：' + (baseData.inpatientIncome/baseData.bedDays).toFixed(2) + '元');
+            // 更新仪表盘数据（如果有关联的指标）
+            initGauges();
+            
+            alert('✅ 计算完成并已更新到指标清单！\n\n📊 计算结果：\n• 门急诊均次费用：' + avgOutpatientFee.toFixed(2) + '元\n• 床日费：' + bedDayFee.toFixed(2) + '元/天\n\n💡 请查看指标清单中的【门诊科室】和【住院科室】层面');
         }
         
         // 导出 PDF 功能
