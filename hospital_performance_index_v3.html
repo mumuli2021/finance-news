@@ -31,8 +31,8 @@
             -webkit-text-fill-color: transparent;
             margin-bottom: 15px;
         }
-        .header .subtitle { font-size: 1.2em; color: #f5f5f5; margin-bottom: 15px; }
-        .header .meta { font-size: 0.9em; color: #e8e8e8; }
+        .header .subtitle { font-size: 1.2em; color: #b0b0d0; margin-bottom: 15px; }
+        .header .meta { font-size: 0.9em; color: #8080a0; }
         .header .update-time { margin-top: 15px; font-size: 0.9em; color: #00ff88; }
         
         .action-buttons {
@@ -74,7 +74,7 @@
         .tab-btn {
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.1);
-            color: #fff;
+            color: #a0a0c0;
             padding: 10px 20px;
             border-radius: 20px;
             cursor: pointer;
@@ -107,8 +107,8 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .kpi-card .label { color: #fff; margin-top: 10px; }
-        .kpi-card .unit { color: #e8e8e8; font-size: 0.85em; margin-top: 5px; }
+        .kpi-card .label { color: #a0a0c0; margin-top: 10px; }
+        .kpi-card .unit { color: #8080a0; font-size: 0.85em; margin-top: 5px; }
         
         .gauge-container {
             display: grid;
@@ -239,7 +239,7 @@
             padding-top: 10px;
             border-top: 1px solid rgba(255,255,255,0.05);
         }
-        .tree-item .detail { font-size: 0.85em; color: #fff; }
+        .tree-item .detail { font-size: 0.85em; color: #a0a0c0; }
         .tree-item .detail strong { color: #00ff88; }
         .tree-item .formula {
             background: rgba(0,255,136,0.05);
@@ -267,7 +267,7 @@
         .footer {
             text-align: center;
             padding: 30px;
-            color: #e8e8e8;
+            color: #8080a0;
             border-top: 1px solid rgba(255,255,255,0.1);
         }
         .footer a { color: #00d4ff; text-decoration: none; }
@@ -292,7 +292,7 @@
         <div class="header">
             <h1>🏥 医院绩效指标平台</h1>
             <div class="subtitle">成本效益类指标体系可视化</div>
-            <div class="meta">数据来源：医院采集系统｜开发者：小五｜版本：V1.0.1</div>
+            <div class="meta">数据来源：医院 HIS 系统 | 整理：小五 📊 | 版本：金算盘</div>
             <div class="update-time">⚡ 最后更新：<span id="lastUpdateTime"></span></div>
             <div class="action-buttons">
                 <button class="action-btn print" onclick="window.print()">🖨️ 打印报告</button>
@@ -415,12 +415,40 @@
                 options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#a0a0c0'}}}}
             });
 
+            // 层面分布 - 使用实际指标数据
+            const levelData = {
+                '单位层面': {name:'医疗收入增长率',current:8.5,target:10,unit:'%'},
+                '门诊科室': {name:'医疗服务占比',current:32,target:35,unit:'%'},
+                '住院科室': {name:'药品收入占比',current:23,target:25,unit:'%'}
+            };
             new Chart(document.getElementById('levelChart').getContext('2d'), {
                 type:'bar',
-                data:{labels:['单位层面','门诊科室','住院科室'],datasets:[{label:'指标数量',data:[12,9,9],
-                    backgroundColor:['rgba(0,212,255,0.8)','rgba(247,37,133,0.8)','rgba(0,255,136,0.8)'],borderRadius:8}]},
-                options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-                    scales:{y:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.1)'}},x:{grid:{display:false}}}}
+                data:{
+                    labels:['单位层面','门诊科室','住院科室'],
+                    datasets:[
+                        {label:'当前值',data:[8.5,32,23],backgroundColor:'rgba(0,212,255,0.8)',borderRadius:8},
+                        {label:'目标值',data:[10,35,25],backgroundColor:'rgba(0,255,136,0.6)',borderRadius:8}
+                    ]
+                },
+                options:{
+                    responsive:true,
+                    maintainAspectRatio:false,
+                    plugins:{
+                        legend:{display:true,position:'top',labels:{color:'#fff'}},
+                        tooltip:{
+                            callbacks:{
+                                label:function(context){
+                                    const labels = ['医疗收入增长率','医疗服务占比','药品收入占比'];
+                                    return labels[context.dataIndex]+': '+context.parsed.y+'%';
+                                }
+                            }
+                        }
+                    },
+                    scales:{
+                        y:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.1)'},ticks:{color:'#fff'}},
+                        x:{grid:{display:false},ticks:{color:'#fff'}}
+                    }
+                }
             });
 
             new Chart(document.getElementById('trendChart').getContext('2d'), {
