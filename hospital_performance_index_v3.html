@@ -382,6 +382,78 @@
             <div id="metricsTreeContent"></div>
         </div>
 
+        <!-- 财务分析标签页内容（小四方案） -->
+        <div id="finance" class="tab-content">
+            <div class="data-section">
+                <h2>💰 财务健康度评估</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="value" id="fh-surplusRate">12.5</div>
+                        <div class="label">收支结余率（%）</div>
+                        <div class="hint">优秀：≥15% | 健康：≥10%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="fh-debtRatio">45.2</div>
+                        <div class="label">资产负债率（%）</div>
+                        <div class="hint">安全：<50% | 预警：≥70%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="fh-currentRatio">1.8</div>
+                        <div class="label">流动比率（倍）</div>
+                        <div class="hint">健康：≥1.5 | 优秀：≥2</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="fh-cashFlowRatio">25.3</div>
+                        <div class="label">现金流动负债比（%）</div>
+                        <div class="hint">健康：≥20% | 优秀：≥30%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="data-section">
+                <h2>📊 盈利能力分析</h2>
+                <div class="chart-container" style="height:350px">
+                    <canvas id="profitabilityChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="data-section">
+                <h2>💹 成本结构分析</h2>
+                <div class="chart-container" style="height:350px">
+                    <canvas id="costStructureChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="data-section">
+                <h2>📈 投资回报分析</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="value" id="roi-bed">18.5</div>
+                        <div class="label">床位 ROI（%）</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="roi-device">22.3</div>
+                        <div class="label">设备 ROI（%）</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="roi-percapita">35.8</div>
+                        <div class="label">人均创收（万元）</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="roe">15.2</div>
+                        <div class="label">ROE（%）</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="data-section">
+                <h2>⚠️ 财务风险预警</h2>
+                <div id="riskWarning" class="risk-cards">
+                    <!-- 风险预警卡片由 JS 动态生成 -->
+                </div>
+            </div>
+        </div>
+        
         <div class="footer">
             <p><strong>小五 · 首席数据官</strong> | 2026-03-18</p>
             <button class="action-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" style="margin-top:15px;background:rgba(123,44,191,0.15);border-color:rgba(123,44,191,0.4)">🔝 返回顶部</button>
@@ -903,42 +975,27 @@
             });
         });
         
-        // 渲染财务图表
+        // 渲染财务分析图表（小四方案）
         function renderFinanceCharts() {
-            console.log('渲染财务分析图表...');
+            console.log('渲染小四财务分析图表...');
             
-            // 收入结构图
-            const incomeCtx = document.getElementById('incomeStructureChart').getContext('2d');
-            if (window.incomeChart) window.incomeChart.destroy();
-            window.incomeChart = new Chart(incomeCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['医疗收入', '药品收入', '检查化验收入', '其他收入'],
-                    datasets: [{
-                        data: [60, 23, 18, 5],
-                        backgroundColor: ['rgba(0,212,255,0.8)', 'rgba(231,76,60,0.8)', 'rgba(0,255,136,0.8)', 'rgba(255,209,102,0.8)']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'right', labels: { color: '#fff' } }
-                    }
-                }
-            });
-            
-            // 支出结构图
-            const expenseCtx = document.getElementById('expenseStructureChart').getContext('2d');
-            if (window.expenseChart) window.expenseChart.destroy();
-            window.expenseChart = new Chart(expenseCtx, {
+            // 1. 盈利能力分析图
+            const profitCtx = document.getElementById('profitabilityChart').getContext('2d');
+            if (window.profitChart) window.profitChart.destroy();
+            window.profitChart = new Chart(profitCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['人员支出', '药品支出', '卫生材料', '管理费用', '其他支出'],
+                    labels: ['门诊利润率', '住院利润率', '药品依赖度', '收入质量', '检查化验占比'],
                     datasets: [{
-                        label: '支出金额（元）',
-                        data: [43, 23, 7.5, 5, 21.5],
-                        backgroundColor: 'rgba(231,76,60,0.8)'
+                        label: '指标值（%）',
+                        data: [12, 18, 23, 60, 18],
+                        backgroundColor: [
+                            'rgba(0,212,255,0.8)',
+                            'rgba(0,255,136,0.8)',
+                            'rgba(231,76,60,0.8)',
+                            'rgba(123,44,191,0.8)',
+                            'rgba(255,209,102,0.8)'
+                        ]
                     }]
                 },
                 options: {
@@ -954,46 +1011,51 @@
                 }
             });
             
-            // 财务趋势图
-            const trendCtx = document.getElementById('financeTrendChart').getContext('2d');
-            if (window.trendChart) window.trendChart.destroy();
-            window.trendChart = new Chart(trendCtx, {
-                type: 'line',
+            // 2. 成本结构分析图
+            const costCtx = document.getElementById('costStructureChart').getContext('2d');
+            if (window.costChart) window.costChart.destroy();
+            window.costChart = new Chart(costCtx, {
+                type: 'doughnut',
                 data: {
-                    labels: ['1 月', '2 月', '3 月', '4 月', '5 月', '6 月', '7 月', '8 月', '9 月', '10 月', '11 月', '12 月'],
-                    datasets: [
-                        {
-                            label: '收入（万元）',
-                            data: [280, 320, 350, 380, 420, 450, 480, 520, 550, 580, 620, 650],
-                            borderColor: '#00d4ff',
-                            backgroundColor: 'rgba(0,212,255,0.1)',
-                            fill: true,
-                            tension: 0.4
-                        },
-                        {
-                            label: '支出（万元）',
-                            data: [260, 290, 320, 350, 380, 410, 440, 470, 500, 530, 560, 590],
-                            borderColor: '#e74c3c',
-                            backgroundColor: 'rgba(231,76,60,0.1)',
-                            fill: true,
-                            tension: 0.4
-                        }
-                    ]
+                    labels: ['人员支出', '药品支出', '卫生材料', '管理费用', '其他支出'],
+                    datasets: [{
+                        data: [43, 23, 7.5, 5, 21.5],
+                        backgroundColor: [
+                            'rgba(231,76,60,0.8)',
+                            'rgba(0,212,255,0.8)',
+                            'rgba(0,255,136,0.8)',
+                            'rgba(255,209,102,0.8)',
+                            'rgba(123,44,191,0.8)'
+                        ]
+                    }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'top', labels: { color: '#fff' } }
-                    },
-                    scales: {
-                        y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } },
-                        x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } }
+                        legend: { position: 'right', labels: { color: '#fff' } }
                     }
                 }
             });
             
-            console.log('✅ 财务分析图表已渲染');
+            // 3. 风险预警卡片
+            const riskData = [
+                { title: '现金流预警', desc: '经营活动现金净流量/流动负债 < 10%', level: 'high' },
+                { title: '资产负债率偏高', desc: '当前 45.2%，接近 50% 警戒线', level: 'medium' },
+                { title: '药品依赖度', desc: '药品收入占比 23%，控制良好', level: 'low' }
+            ];
+            
+            const riskHtml = riskData.map(risk => `
+                <div class="risk-card ${risk.level}">
+                    <div class="title">⚠️ ${risk.title}</div>
+                    <div class="desc">${risk.desc}</div>
+                    <span class="level ${risk.level}">${risk.level === 'high' ? '高风险' : risk.level === 'medium' ? '中风险' : '低风险'}</span>
+                </div>
+            `).join('');
+            
+            document.getElementById('riskWarning').innerHTML = riskHtml;
+            
+            console.log('✅ 小四财务分析图表已渲染');
         }
         
         initGauges();
