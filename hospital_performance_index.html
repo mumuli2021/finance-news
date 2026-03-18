@@ -6,6 +6,8 @@
     <title>医院绩效指标平台 | 成本效益类指标</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <meta name="description" content="医院绩效指标平台 - 成本效益类指标体系可视化，包含单位层面、门诊科室层面、住院科室层面 30 个绩效指标">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏥</text></link>
     <style>
         * {
             margin: 0;
@@ -258,6 +260,43 @@
             text-decoration: none;
         }
         
+        /* 操作按钮区域 */
+        .action-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid #00d4ff;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .action-btn:hover {
+            background: rgba(0, 212, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+        .action-btn.print {
+            background: rgba(0, 255, 136, 0.2);
+            border-color: #00ff88;
+        }
+        .action-btn.print:hover {
+            background: rgba(0, 255, 136, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+        }
+        
+        /* 打印样式 */
         @media (max-width: 768px) {
             .dashboard {
                 grid-template-columns: 1fr;
@@ -267,6 +306,50 @@
             }
             .kpi-summary {
                 grid-template-columns: repeat(2, 1fr);
+            }
+            .gauge-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .level-tabs {
+                justify-content: flex-start;
+                overflow-x: auto;
+            }
+            .tab-btn {
+                white-space: nowrap;
+            }
+        }
+        
+        /* 打印样式 */
+        @media print {
+            body {
+                background: #fff !important;
+                color: #000 !important;
+                padding: 0 !important;
+            }
+            .level-tabs, .action-buttons, .footer {
+                display: none !important;
+            }
+            .header {
+                background: #fff !important;
+                border: none !important;
+                padding: 10px !important;
+            }
+            .header h1 {
+                color: #1a1a2e !important;
+                background: none !important;
+                -webkit-text-fill-color: #1a1a2e !important;
+            }
+            .header .subtitle, .header .meta, .header .update-time {
+                color: #333 !important;
+            }
+            .chart-card, .kpi-card, .gauge-card {
+                break-inside: avoid !important;
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+                background: #fff !important;
+            }
+            .container {
+                max-width: 100% !important;
             }
         }
     </style>
@@ -280,7 +363,20 @@
                 数据来源：医院 HIS 系统 | 整理：小五 📊 | 版本：金算盘
             </div>
             <div class="update-time">
-                ⚡ 最后更新：2026-03-18 11:56
+                ⚡ 最后更新：<span id="lastUpdateTime">2026-03-18 11:56</span>
+            </div>
+            
+            <!-- 操作按钮 -->
+            <div class="action-buttons">
+                <button class="action-btn print" onclick="printReport()">
+                    🖨️ 打印报告
+                </button>
+                <button class="action-btn" onclick="location.reload()">
+                    🔄 刷新数据
+                </button>
+                <button class="action-btn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+                    🔝 返回顶部
+                </button>
             </div>
         </div>
 
@@ -317,27 +413,35 @@
         </div>
 
         <!-- 核心 KPI 仪表盘 -->
-        <h2 style="text-align: center; margin-bottom: 20px; color: #00d4ff;">🎯 核心 KPI 指标达成情况</h2>
+        <div style="text-align: center; margin-bottom: 25px;">
+            <h2 style="color: #00d4ff; margin-bottom: 10px;">🎯 核心 KPI 指标达成情况</h2>
+            <p style="color: #8080a0; font-size: 0.9em;">💡 绿色表示达标（≥90%），黄色表示基本达标（70-90%），红色表示未达标（<70%）</p>
+        </div>
         <div class="gauge-container">
             <div class="gauge-card">
                 <div id="gauge1" class="gauge-chart"></div>
-                <p style="margin-top: 10px; color: #a0a0c0;">医疗收入增长率</p>
+                <p style="margin-top: 10px; color: #a0a0c0; font-weight: 600;">医疗收入增长率</p>
+                <p style="font-size: 0.85em; color: #8080a0;">目标：10%</p>
             </div>
             <div class="gauge-card">
                 <div id="gauge2" class="gauge-chart"></div>
-                <p style="margin-top: 10px; color: #a0a0c0;">床位使用率</p>
+                <p style="margin-top: 10px; color: #a0a0c0; font-weight: 600;">床位使用率</p>
+                <p style="font-size: 0.85em; color: #8080a0;">目标：93%</p>
             </div>
             <div class="gauge-card">
                 <div id="gauge3" class="gauge-chart"></div>
-                <p style="margin-top: 10px; color: #a0a0c0;">平均住院天数</p>
+                <p style="margin-top: 10px; color: #a0a0c0; font-weight: 600;">平均住院天数</p>
+                <p style="font-size: 0.85em; color: #8080a0;">目标：≤8.5 天</p>
             </div>
             <div class="gauge-card">
                 <div id="gauge4" class="gauge-chart"></div>
-                <p style="margin-top: 10px; color: #a0a0c0;">人员支出占比</p>
+                <p style="margin-top: 10px; color: #a0a0c0; font-weight: 600;">人员支出占比</p>
+                <p style="font-size: 0.85em; color: #8080a0;">目标：45%</p>
             </div>
             <div class="gauge-card">
                 <div id="gauge5" class="gauge-chart"></div>
-                <p style="margin-top: 10px; color: #a0a0c0;">门诊满意度</p>
+                <p style="margin-top: 10px; color: #a0a0c0; font-weight: 600;">门诊满意度</p>
+                <p style="font-size: 0.85em; color: #8080a0;">目标：90%</p>
             </div>
         </div>
 
@@ -361,8 +465,9 @@
 
             <!-- 趋势图 - 关键指标月度趋势 -->
             <div class="chart-card full-width">
-                <h3>📈 关键指标月度趋势（模拟数据）</h3>
-                <div class="chart-container">
+                <h3>📈 关键指标月度趋势</h3>
+                <p style="color: #8080a0; font-size: 0.85em; margin-bottom: 15px;">📊 展示 2026 年 1-10 月核心指标变化趋势，11-12 月数据待更新</p>
+                <div class="chart-container" style="height: 350px;">
                     <canvas id="trendChart"></canvas>
                 </div>
             </div>
@@ -386,7 +491,12 @@
 
         <!-- 详细指标表格 -->
         <div class="metrics-table">
-            <h3>📋 完整指标清单</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                <h3 style="margin: 0;">📋 完整指标清单</h3>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <span style="font-size: 0.85em; color: #8080a0;">📊 共 <span id="tableCount">30</span> 个指标</span>
+                </div>
+            </div>
             <table>
                 <thead>
                     <tr>
@@ -729,6 +839,7 @@
             });
             
             tbody.innerHTML = html;
+            document.getElementById('tableCount').textContent = filtered.length;
             updateLevelChart(level);
         }
         
@@ -750,9 +861,23 @@
             document.getElementById('inpatientCount').textContent = filtered.filter(m => m.level === 'inpatient').length;
         }
         
+        // 打印报告
+        function printReport() {
+            window.print();
+        }
+        
         // 初始化
         initGauges();
         renderTable('all');
+        
+        // 设置当前时间
+        document.getElementById('lastUpdateTime').textContent = new Date().toLocaleString('zh-CN', { 
+            year: 'numeric', 
+            month: '2-digit', 
+            day: '2-digit', 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
 
         // 窗口大小变化时重新渲染仪表盘
         window.addEventListener('resize', () => {
