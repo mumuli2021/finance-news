@@ -4,8 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>医院绩效指标平台 | 成本效益类指标</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <!-- 使用国内 CDN 加速 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-1y2ymq2uZqkF0kG2cDN9uXhMqeBzCp9mpWp4bN0kN5ZqYzqK5XvFqK5ZqYzqK5X" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js" integrity="sha384-1y2ymq2uZqkF0kG2cDN9uXhMqeBzCp9mpWp4bN0kN5ZqYzqK5XvFqK5ZqYzqK5X" crossorigin="anonymous"></script>
+    <!-- 备用 CDN -->
+    <script>
+        if (typeof Chart === 'undefined') {
+            document.write('<script src="https://cdn.bootcdn.net/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"><\/script>');
+        }
+        if (typeof echarts === 'undefined') {
+            document.write('<script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"><\/script>');
+        }
+    </script>
     <meta name="description" content="医院绩效指标平台 - 成本效益类指标体系可视化，包含单位层面、门诊科室层面、住院科室层面 30 个绩效指标">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏥</text></link>
     <style>
@@ -735,6 +745,12 @@
 
         // ========== ECharts 仪表盘 ==========
         function initGauges() {
+            // 检查 ECharts 是否加载
+            if (typeof echarts === 'undefined') {
+                console.error('ECharts 未加载，跳过仪表盘初始化');
+                return;
+            }
+            
             const gaugeData = [
                 { id: 'gauge1', name: '医疗收入增长率', target: 10, actual: 8.5, unit: '%' },
                 { id: 'gauge2', name: '床位使用率', target: 93, actual: 95, unit: '%' },
@@ -779,8 +795,9 @@
         }
 
         // 1. 指标分类分布 - 饼图
-        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-        new Chart(categoryCtx, {
+        if (typeof Chart !== 'undefined' && document.getElementById('categoryChart')) {
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            new Chart(categoryCtx, {
             type: 'doughnut',
             data: {
                 labels: Object.keys(categoryStats),
