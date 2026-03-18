@@ -4,505 +4,199 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>医院绩效指标平台 | 成本效益类指标</title>
-    <!-- 使用国内 CDN 加速 -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-1y2ymq2uZqkF0kG2cDN9uXhMqeBzCp9mpWp4bN0kN5ZqYzqK5XvFqK5ZqYzqK5X" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js" integrity="sha384-1y2ymq2uZqkF0kG2cDN9uXhMqeBzCp9mpWp4bN0kN5ZqYzqK5XvFqK5ZqYzqK5X" crossorigin="anonymous"></script>
-    <!-- 备用 CDN -->
-    <script>
-        if (typeof Chart === 'undefined') {
-            document.write('<script src="https://cdn.bootcdn.net/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"><\/script>');
-        }
-        if (typeof echarts === 'undefined') {
-            document.write('<script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"><\/script>');
-        }
-    </script>
-    <meta name="description" content="医院绩效指标平台 - 成本效益类指标体系可视化，包含单位层面、门诊科室层面、住院科室层面 30 个绩效指标">
-    <!-- Build: 2026-03-18 13:00 -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏥</text></link>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
             background: linear-gradient(135deg, #0f0c29 0%, #1a1a2e 50%, #0f3460 100%);
             min-height: 100vh;
             padding: 20px;
             color: #fff;
-            line-height: 1.6;
         }
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-            animation: fadeIn 0.6s ease-out;
-        }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        .container { max-width: 1600px; margin: 0 auto; }
         .header {
             text-align: center;
-            padding: 50px 30px;
-            margin-bottom: 35px;
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(123, 44, 191, 0.05));
-            backdrop-filter: blur(10px);
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-            position: relative;
-            overflow: hidden;
-        }
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(0, 212, 255, 0.03) 0%, transparent 70%);
-            animation: shimmer 15s linear infinite;
-        }
-        @keyframes shimmer {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            padding: 40px 20px;
+            margin-bottom: 30px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
         .header h1 {
-            font-size: 3em;
-            background: linear-gradient(135deg, #00d4ff 0%, #00ff88 50%, #f72585 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 18px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            position: relative;
-            z-index: 1;
-        }
-        .header .subtitle {
-            font-size: 1.35em;
-            color: #b0b0d0;
-            margin-bottom: 18px;
-            font-weight: 400;
-            position: relative;
-            z-index: 1;
-        }
-        .header .meta {
-            font-size: 0.95em;
-            color: #8080a0;
-            position: relative;
-            z-index: 1;
-        }
-        .header .update-time {
-            margin-top: 18px;
-            font-size: 0.95em;
-            color: #00ff88;
-            font-weight: 500;
-            position: relative;
-            z-index: 1;
-        }
-        
-        /* 层面切换 Tabs - 美化版 */
-        .level-tabs {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 35px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        .tab-btn {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.05));
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #a0a0c0;
-            padding: 12px 24px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 0.95em;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(5px);
-            position: relative;
-            overflow: hidden;
-        }
-        .tab-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), transparent);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .tab-btn:hover {
-            border-color: rgba(0, 212, 255, 0.4);
-            color: #fff;
-            transform: translateY(-2px);
-        }
-        .tab-btn:hover::before {
-            opacity: 1;
-        }
-        .tab-btn.active {
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(123, 44, 191, 0.2));
-            border-color: rgba(0, 212, 255, 0.5);
-            color: #fff;
-            box-shadow: 0 5px 25px rgba(0, 212, 255, 0.3), inset 0 0 20px rgba(0, 212, 255, 0.1);
-        }
-        
-        /* 关键指标卡片 - 美化版 */
-        .kpi-summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            margin-bottom: 35px;
-        }
-        .kpi-card {
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.08), rgba(123, 44, 191, 0.08));
-            border: 1px solid rgba(0, 212, 255, 0.15);
-            border-radius: 20px;
-            padding: 28px 20px;
-            text-align: center;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        }
-        .kpi-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #00d4ff, #7b2cbf, #f72585);
-            opacity: 0;
-            transition: opacity 0.4s;
-        }
-        .kpi-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.25);
-            border-color: rgba(0, 212, 255, 0.3);
-        }
-        .kpi-card:hover::before {
-            opacity: 1;
-        }
-        .kpi-card .number {
-            font-size: 3.2em;
-            font-weight: 700;
+            font-size: 2.5em;
             background: linear-gradient(135deg, #00d4ff, #00ff88, #f72585);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
-            margin-bottom: 8px;
+            margin-bottom: 15px;
         }
-        .kpi-card .label {
-            color: #c0c0e0;
-            margin-top: 12px;
-            font-size: 1.05em;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-        }
-        .kpi-card .unit {
-            color: #8080a0;
-            font-size: 0.85em;
-            margin-top: 6px;
-            font-weight: 400;
-        }
+        .header .subtitle { font-size: 1.2em; color: #b0b0d0; margin-bottom: 15px; }
+        .header .meta { font-size: 0.9em; color: #8080a0; }
+        .header .update-time { margin-top: 15px; font-size: 0.9em; color: #00ff88; }
         
-        /* 图表区域 */
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-        .chart-card {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.05));
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 20px;
-            padding: 28px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-        .chart-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            border-radius: 20px;
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), transparent, rgba(123, 44, 191, 0.05));
-            opacity: 0;
-            transition: opacity 0.4s;
-            pointer-events: none;
-        }
-        .chart-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 15px 50px rgba(0, 212, 255, 0.2);
-            border-color: rgba(0, 212, 255, 0.2);
-        }
-        .chart-card:hover::after {
-            opacity: 1;
-        }
-        .chart-card h3 {
-            font-size: 1.35em;
-            margin-bottom: 22px;
-            color: #00d4ff;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-weight: 600;
-            letter-spacing: 0.3px;
-        }
-        .chart-card h3::before {
-            content: '';
-            display: inline-block;
-            width: 5px;
-            height: 22px;
-            background: linear-gradient(180deg, #00d4ff, #00ff88, #7b2cbf);
-            border-radius: 3px;
-            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
-        }
-        .chart-container {
-            position: relative;
-            height: 320px;
-        }
-        .full-width {
-            grid-column: 1 / -1;
-        }
-        
-        /* 仪表盘容器 - 美化版 */
-        .gauge-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-        .gauge-card {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.05));
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 20px;
-            padding: 25px 20px;
-            text-align: center;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-        }
-        .gauge-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 15px 50px rgba(0, 212, 255, 0.2);
-            border-color: rgba(0, 212, 255, 0.2);
-        }
-        .gauge-card p {
-            font-weight: 500;
-            letter-spacing: 0.3px;
-        }
-        .gauge-chart {
-            width: 100%;
-            height: 180px;
-        }
-        
-        /* 指标表格 - 美化版 */
-        .metrics-table {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.04));
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 40px;
-            overflow-x: auto;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-        }
-        .metrics-table h3 {
-            font-size: 1.4em;
-            margin-bottom: 25px;
-            color: #00d4ff;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9em;
-        }
-        th {
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(123, 44, 191, 0.15));
-            padding: 16px 12px;
-            text-align: left;
-            color: #00d4ff;
-            font-weight: 600;
-            border-bottom: 2px solid rgba(0, 212, 255, 0.3);
-            text-transform: uppercase;
-            font-size: 0.85em;
-            letter-spacing: 0.8px;
-        }
-        td {
-            padding: 14px 12px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-            color: #d0d0e0;
-            transition: background 0.2s;
-        }
-        tr:hover td {
-            background: linear-gradient(90deg, rgba(0, 212, 255, 0.08), rgba(123, 44, 191, 0.08));
-        }
-        tr:last-child td {
-            border-bottom: none;
-        }
-        .category-badge {
-            display: inline-block;
-            padding: 5px 14px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            font-weight: 600;
-            letter-spacing: 0.3px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            text-transform: uppercase;
-        }
-        .cat-business {
-            background: linear-gradient(135deg, #00d4ff, #0099cc);
-            color: #fff;
-            box-shadow: 0 2px 10px rgba(0, 212, 255, 0.3);
-        }
-        .cat-cost {
-            background: linear-gradient(135deg, #f72585, #c51162);
-            color: #fff;
-            box-shadow: 0 2px 10px rgba(247, 37, 133, 0.3);
-        }
-        .cat-efficiency {
-            background: linear-gradient(135deg, #00ff88, #00cc6a);
-            color: #1a1a2e;
-            box-shadow: 0 2px 10px rgba(0, 255, 136, 0.3);
-        }
-        .cat-development {
-            background: linear-gradient(135deg, #7b2cbf, #5a189a);
-            color: #fff;
-            box-shadow: 0 2px 10px rgba(123, 44, 191, 0.3);
-        }
-        
-        .footer {
-            text-align: center;
-            padding: 30px;
-            color: #8080a0;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            margin-top: 30px;
-        }
-        .footer a {
-            color: #00d4ff;
-            text-decoration: none;
-        }
-        
-        /* 操作按钮区域 - 美化版 */
         .action-buttons {
-            margin-top: 25px;
+            margin-top: 20px;
             display: flex;
-            gap: 12px;
+            gap: 10px;
             justify-content: center;
             flex-wrap: wrap;
         }
         .action-btn {
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(0, 212, 255, 0.05));
+            background: rgba(0, 212, 255, 0.15);
             border: 1px solid rgba(0, 212, 255, 0.4);
             color: #fff;
             padding: 10px 20px;
             border-radius: 20px;
             cursor: pointer;
             font-size: 0.9em;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            backdrop-filter: blur(5px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
         }
         .action-btn:hover {
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.25), rgba(0, 212, 255, 0.1));
-            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.25);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
-        }
-        .action-btn:active {
-            transform: translateY(0);
         }
         .action-btn.print {
-            background: linear-gradient(135deg, rgba(0, 255, 136, 0.15), rgba(0, 255, 136, 0.05));
+            background: rgba(0, 255, 136, 0.15);
             border-color: rgba(0, 255, 136, 0.4);
         }
         .action-btn.print:hover {
-            background: linear-gradient(135deg, rgba(0, 255, 136, 0.25), rgba(0, 255, 136, 0.1));
-            border-color: #00ff88;
-            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+            background: rgba(0, 255, 136, 0.25);
         }
         
-        /* 打印样式 */
-        @media (max-width: 768px) {
-            .dashboard {
-                grid-template-columns: 1fr;
-            }
-            .header h1 {
-                font-size: 1.8em;
-            }
-            .kpi-summary {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .gauge-container {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .level-tabs {
-                justify-content: flex-start;
-                overflow-x: auto;
-            }
-            .tab-btn {
-                white-space: nowrap;
-            }
+        .level-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .tab-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #a0a0c0;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tab-btn:hover { background: rgba(0,212,255,0.1); border-color: rgba(0,212,255,0.3); color: #fff; }
+        .tab-btn.active {
+            background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(123,44,191,0.2));
+            border-color: rgba(0,212,255,0.5);
+            color: #fff;
         }
         
-        /* 打印样式 */
+        .kpi-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .kpi-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+        }
+        .kpi-card .number {
+            font-size: 2.8em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #00d4ff, #f72585);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .kpi-card .label { color: #a0a0c0; margin-top: 10px; }
+        .kpi-card .unit { color: #8080a0; font-size: 0.85em; margin-top: 5px; }
+        
+        .gauge-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .gauge-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+        }
+        .gauge-chart { width: 100%; height: 160px; }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .chart-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 25px;
+        }
+        .chart-card h3 {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            color: #00d4ff;
+        }
+        .chart-container { position: relative; height: 300px; }
+        .full-width { grid-column: 1 / -1; }
+        
+        .metrics-table {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+        .metrics-table h3 { font-size: 1.2em; margin-bottom: 20px; color: #00d4ff; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+        th {
+            background: rgba(0,212,255,0.15);
+            padding: 12px 10px;
+            text-align: left;
+            color: #00d4ff;
+            font-weight: 600;
+        }
+        td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #d0d0e0; }
+        tr:hover td { background: rgba(0,212,255,0.05); }
+        
+        .category-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        .cat-business { background: linear-gradient(135deg, #00d4ff, #0099cc); color: #fff; }
+        .cat-cost { background: linear-gradient(135deg, #f72585, #c51162); color: #fff; }
+        .cat-efficiency { background: linear-gradient(135deg, #00ff88, #00cc6a); color: #1a1a2e; }
+        .cat-development { background: linear-gradient(135deg, #7b2cbf, #5a189a); color: #fff; }
+        
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #8080a0;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .footer a { color: #00d4ff; text-decoration: none; }
+        
         @media print {
-            body {
-                background: #fff !important;
-                color: #000 !important;
-                padding: 0 !important;
-            }
-            .level-tabs, .action-buttons, .footer {
-                display: none !important;
-            }
-            .header {
-                background: #fff !important;
-                border: none !important;
-                padding: 10px !important;
-            }
-            .header h1 {
-                color: #1a1a2e !important;
-                background: none !important;
-                -webkit-text-fill-color: #1a1a2e !important;
-            }
-            .header .subtitle, .header .meta, .header .update-time {
-                color: #333 !important;
-            }
-            .chart-card, .kpi-card, .gauge-card {
-                break-inside: avoid !important;
-                box-shadow: none !important;
-                border: 1px solid #ddd !important;
-                background: #fff !important;
-            }
-            .container {
-                max-width: 100% !important;
-            }
+            body { background: #fff !important; color: #000 !important; }
+            .level-tabs, .action-buttons, .footer { display: none !important; }
+            .header { background: #fff !important; border: none !important; }
+            .header h1 { color: #1a1a2e !important; -webkit-text-fill-color: #1a1a2e !important; }
+            .chart-card, .kpi-card, .gauge-card { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; background: #fff; }
+        }
+        @media (max-width: 768px) {
+            .dashboard { grid-template-columns: 1fr; }
+            .header h1 { font-size: 1.8em; }
+            .kpi-summary { grid-template-columns: repeat(2, 1fr); }
+            .gauge-container { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
 </head>
@@ -511,540 +205,191 @@
         <div class="header">
             <h1>🏥 医院绩效指标平台</h1>
             <div class="subtitle">成本效益类指标体系可视化</div>
-            <div class="meta">
-                数据来源：医院 HIS 系统 | 整理：小五 📊 | 版本：金算盘
-            </div>
-            <div class="update-time">
-                ⚡ 最后更新：<span id="lastUpdateTime">2026-03-18 11:56</span>
-            </div>
-            
-            <!-- 操作按钮 -->
+            <div class="meta">数据来源：医院 HIS 系统 | 整理：小五 📊 | 版本：金算盘</div>
+            <div class="update-time">⚡ 最后更新：<span id="lastUpdateTime"></span></div>
             <div class="action-buttons">
-                <button class="action-btn print" onclick="printReport()">
-                    🖨️ 打印报告
-                </button>
-                <button class="action-btn" onclick="location.reload()">
-                    🔄 刷新数据
-                </button>
-                <button class="action-btn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
-                    🔝 返回顶部
-                </button>
+                <button class="action-btn print" onclick="window.print()">🖨️ 打印报告</button>
+                <button class="action-btn" onclick="location.reload()">🔄 刷新数据</button>
+                <button class="action-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})">🔝 返回顶部</button>
             </div>
         </div>
 
-        <!-- 层面切换 Tabs -->
         <div class="level-tabs">
             <button class="tab-btn active" data-level="all">📊 全部层面</button>
             <button class="tab-btn" data-level="unit">🏥 单位层面</button>
-            <button class="tab-btn" data-level="outpatient">🚪 门诊科室层面</button>
-            <button class="tab-btn" data-level="inpatient">🛏️ 住院科室层面</button>
+            <button class="tab-btn" data-level="outpatient">🚪 门诊层面</button>
+            <button class="tab-btn" data-level="inpatient">🛏️ 住院层面</button>
         </div>
 
-        <!-- 关键指标汇总 -->
         <div class="kpi-summary">
-            <div class="kpi-card">
-                <div class="number" id="totalMetrics">30</div>
-                <div class="label">指标总数</div>
-                <div class="unit">个绩效指标</div>
-            </div>
-            <div class="kpi-card">
-                <div class="number" id="unitCount">12</div>
-                <div class="label">单位层面</div>
-                <div class="unit">院级整体指标</div>
-            </div>
-            <div class="kpi-card">
-                <div class="number" id="outpatientCount">9</div>
-                <div class="label">门诊层面</div>
-                <div class="unit">门诊科室指标</div>
-            </div>
-            <div class="kpi-card">
-                <div class="number" id="inpatientCount">9</div>
-                <div class="label">住院层面</div>
-                <div class="unit">住院科室指标</div>
-            </div>
+            <div class="kpi-card"><div class="number" id="totalMetrics">30</div><div class="label">指标总数</div><div class="unit">个</div></div>
+            <div class="kpi-card"><div class="number" id="unitCount">12</div><div class="label">单位层面</div><div class="unit">院级指标</div></div>
+            <div class="kpi-card"><div class="number" id="outpatientCount">9</div><div class="label">门诊层面</div><div class="unit">门诊指标</div></div>
+            <div class="kpi-card"><div class="number" id="inpatientCount">9</div><div class="label">住院层面</div><div class="unit">住院指标</div></div>
         </div>
 
-        <!-- 核心 KPI 仪表盘 -->
-        <div style="text-align: center; margin-bottom: 25px;">
-            <h2 style="color: #00d4ff; margin-bottom: 10px;">🎯 核心 KPI 指标达成情况</h2>
-            <p style="color: #8080a0; font-size: 0.9em;">💡 绿色表示达标（≥90%），黄色表示基本达标（70-90%），红色表示未达标（<70%）</p>
-        </div>
         <div class="gauge-container">
-            <div class="gauge-card">
-                <div id="gauge1" class="gauge-chart"></div>
-                <p style="margin-top: 10px; color: #a0a0c0; font-weight: 600;">医疗收入增长率</p>
-                <p style="font-size: 0.85em; color: #8080a0;">目标：10%</p>
-            </div>
-            <div class="gauge-card">
-                <div id="gauge2" class="gauge-chart"></div>
-                <p style="margin-top: 10px; color: #a0a0c0; font-weight: 600;">床位使用率</p>
-                <p style="font-size: 0.85em; color: #8080a0;">目标：93%</p>
-            </div>
-            <div class="gauge-card">
-                <div id="gauge3" class="gauge-chart"></div>
-                <p style="margin-top: 10px; color: #a0a0c0; font-weight: 600;">平均住院天数</p>
-                <p style="font-size: 0.85em; color: #8080a0;">目标：≤8.5 天</p>
-            </div>
-            <div class="gauge-card">
-                <div id="gauge4" class="gauge-chart"></div>
-                <p style="margin-top: 10px; color: #a0a0c0; font-weight: 600;">人员支出占比</p>
-                <p style="font-size: 0.85em; color: #8080a0;">目标：45%</p>
-            </div>
-            <div class="gauge-card">
-                <div id="gauge5" class="gauge-chart"></div>
-                <p style="margin-top: 10px; color: #a0a0c0; font-weight: 600;">门诊满意度</p>
-                <p style="font-size: 0.85em; color: #8080a0;">目标：90%</p>
-            </div>
+            <div class="gauge-card"><div id="gauge1" class="gauge-chart"></div><p style="margin-top:10px;color:#a0a0c0;">医疗收入增长率</p></div>
+            <div class="gauge-card"><div id="gauge2" class="gauge-chart"></div><p style="margin-top:10px;color:#a0a0c0;">床位使用率</p></div>
+            <div class="gauge-card"><div id="gauge3" class="gauge-chart"></div><p style="margin-top:10px;color:#a0a0c0;">平均住院天数</p></div>
+            <div class="gauge-card"><div id="gauge4" class="gauge-chart"></div><p style="margin-top:10px;color:#a0a0c0;">人员支出占比</p></div>
+            <div class="gauge-card"><div id="gauge5" class="gauge-chart"></div><p style="margin-top:10px;color:#a0a0c0;">门诊满意度</p></div>
         </div>
 
-        <!-- 图表区域 -->
         <div class="dashboard">
-            <!-- 指标分类分布 -->
-            <div class="chart-card">
-                <h3>📊 指标分类分布</h3>
-                <div class="chart-container">
-                    <canvas id="categoryChart"></canvas>
-                </div>
-            </div>
-
-            <!-- 层面分布 -->
-            <div class="chart-card">
-                <h3>🏗️ 层面指标分布</h3>
-                <div class="chart-container">
-                    <canvas id="levelChart"></canvas>
-                </div>
-            </div>
-
-            <!-- 趋势图 - 关键指标月度趋势 -->
-            <div class="chart-card full-width">
-                <h3>📈 关键指标月度趋势</h3>
-                <p style="color: #8080a0; font-size: 0.85em; margin-bottom: 15px;">📊 展示 2026 年 1-10 月核心指标变化趋势，11-12 月数据待更新</p>
-                <div class="chart-container" style="height: 350px;">
-                    <canvas id="trendChart"></canvas>
-                </div>
-            </div>
-
-            <!-- 单位类型分布 -->
-            <div class="chart-card">
-                <h3>📏 指标单位类型</h3>
-                <div class="chart-container">
-                    <canvas id="unitChart"></canvas>
-                </div>
-            </div>
-
-            <!-- 雷达图 - 指标体系覆盖度 -->
-            <div class="chart-card">
-                <h3>🎪 指标体系覆盖度</h3>
-                <div class="chart-container">
-                    <canvas id="radarChart"></canvas>
-                </div>
-            </div>
+            <div class="chart-card"><h3>📊 指标分类</h3><div class="chart-container"><canvas id="categoryChart"></canvas></div></div>
+            <div class="chart-card"><h3>🏗️ 层面分布</h3><div class="chart-container"><canvas id="levelChart"></canvas></div></div>
+            <div class="chart-card full-width"><h3>📈 月度趋势</h3><div class="chart-container" style="height:320px;"><canvas id="trendChart"></canvas></div></div>
+            <div class="chart-card"><h3>📏 单位类型</h3><div class="chart-container"><canvas id="unitChart"></canvas></div></div>
+            <div class="chart-card"><h3>🎪 覆盖度</h3><div class="chart-container"><canvas id="radarChart"></canvas></div></div>
         </div>
 
-        <!-- 详细指标表格 -->
         <div class="metrics-table">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
-                <h3 style="margin: 0;">📋 完整指标清单</h3>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <span style="font-size: 0.85em; color: #8080a0;">📊 共 <span id="tableCount">30</span> 个指标</span>
-                </div>
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>分类</th>
-                        <th>层面</th>
-                        <th>编号</th>
-                        <th>指标名称</th>
-                        <th>单位</th>
-                        <th>指标解释</th>
-                        <th>计算公式</th>
-                    </tr>
-                </thead>
-                <tbody id="metricsTableBody">
-                </tbody>
-            </table>
+            <h3>📋 完整指标清单</h3>
+            <table><thead><tr><th>分类</th><th>层面</th><th>编号</th><th>指标名称</th><th>单位</th><th>计算公式</th></tr></thead><tbody id="metricsTableBody"></tbody></table>
         </div>
 
-        <div class="footer">
-            <p><strong>小五 · 首席数据官</strong> | 2026-03-18</p>
-            <p style="margin-top: 10px; font-size: 0.85em;">
-                医院绩效指标平台 | <a href="finance_charts_20260318.html">返回财经数据</a>
-            </p>
-        </div>
+        <div class="footer"><p><strong>小五 · 首席数据官</strong> | 2026-03-18</p></div>
     </div>
 
     <script>
-        // 全局配置
-        Chart.defaults.color = '#a0a0c0';
-        Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
-
-        // 指标数据（按层面分类）
         const metricsData = [
-            // ========== 单位层面指标 ==========
-            { level: 'unit', category: '业务类', code: '1.1', name: '医疗收入增长率', unit: '%', desc: '反应医疗收入增长情况', formula: '（当期医疗收入/同期医疗收入 -1）*100%', target: 10, actual: 8.5 },
-            { level: 'unit', category: '业务类', code: '1.2', name: '医疗服务收入占比', unit: '%', desc: '反应医务性收入在医疗收入中的占比情况', formula: '医务性收入/医疗收入×100%', target: 35, actual: 32 },
-            { level: 'unit', category: '业务类', code: '1.3', name: '药品收入占比', unit: '%', desc: '反应药品收入在医疗收入中的占比情况', formula: '药品收入/医疗收入×100%', target: 25, actual: 23 },
-            { level: 'unit', category: '成本类', code: '2.1', name: '总支出增长率', unit: '%', desc: '反应总支出增长情况', formula: '（当期总支出/同期总支出 -1）*100%', target: 8, actual: 7.2 },
-            { level: 'unit', category: '成本类', code: '2.2', name: '医疗支出率', unit: '%', desc: '反应医疗收入可以负担医疗基本成本的情况', formula: '医疗支出/医疗收入×100%', target: 85, actual: 82 },
-            { level: 'unit', category: '成本类', code: '2.3', name: '人员支出占总支出比例', unit: '%', desc: '反应人员支出占总支出比例情况', formula: '人员支出/总支出', target: 45, actual: 43 },
-            { level: 'unit', category: '效率类', code: '3.1', name: '人均医疗收入', unit: '元', desc: '反应每位职工能创造的医疗收入', formula: '医疗收入/在岗职工人数', target: 150000, actual: 142000 },
-            { level: 'unit', category: '效率类', code: '3.2', name: '人均服务居民数', unit: '人', desc: '反应每位职工服务的辖区居民数量', formula: '辖区居民人数/在岗职工人数', target: 500, actual: 485 },
-            { level: 'unit', category: '效率类', code: '3.3', name: '应收账款周转天数', unit: '天', desc: '反应应收账款周转情况', formula: '[（年初应收账款 + 当期应收账款）/2*365]/医疗收入', target: 30, actual: 28 },
-            { level: 'unit', category: '发展类', code: '4.1', name: '净资产增长率', unit: '%', desc: '反应医院净资产增长情况', formula: '（当期净资产/年初净资产 -1）*100%', target: 12, actual: 10.5 },
-            { level: 'unit', category: '发展类', code: '4.2', name: '固定资产增长率', unit: '%', desc: '反应医院固定资产增长情况', formula: '（当期固定资产原值/年初固定资产原值 -1）*100%', target: 8, actual: 7.8 },
-            { level: 'unit', category: '发展类', code: '4.3', name: '每职工承担科研项目数', unit: '项', desc: '反应科研项目开展情况', formula: '科研项目数/在岗职工人数', target: 0.5, actual: 0.42 },
-            
-            // ========== 门诊科室层面指标 ==========
-            { level: 'outpatient', category: '业务类', code: '1.4', name: '门急诊均次费用', unit: '元', desc: '反应门急诊患者平均支付费用', formula: '门诊收入/门急诊人次数', target: 350, actual: 338 },
-            { level: 'outpatient', category: '业务类', code: '1.5', name: '复诊率', unit: '%', desc: '反应门急诊患者复诊情况', formula: '复诊人次数/门急诊总人次数×100%', target: 25, actual: 27 },
-            { level: 'outpatient', category: '业务类', code: '1.6', name: '人均门急诊人次', unit: '人次', desc: '反应每位门诊职工承担的门急诊人次', formula: '门急诊人次/门诊在岗职工人数', target: 50, actual: 52 },
-            { level: 'outpatient', category: '业务类', code: '1.7', name: '检查化验收入占比', unit: '%', desc: '反应检查化验收入在医疗收入中的占比情况', formula: '检查化验收入/医疗收入×100%', target: 20, actual: 18 },
-            { level: 'outpatient', category: '成本类', code: '2.4', name: '门诊人均支出', unit: '元', desc: '反应门诊科室人均支出情况', formula: '门诊总支出/门诊职工人数', target: 80000, actual: 76000 },
-            { level: 'outpatient', category: '成本类', code: '2.5', name: '门诊卫生材料占比', unit: '%', desc: '反应门诊卫生材料使用情况', formula: '门诊卫生材料/门诊收入×100%', target: 8, actual: 7.5 },
-            { level: 'outpatient', category: '效率类', code: '3.4', name: '门诊医师日均接诊', unit: '人次', desc: '反应门诊医师工作效率', formula: '门急诊人次/门诊医师数/工作日', target: 25, actual: 26 },
-            { level: 'outpatient', category: '效率类', code: '3.5', name: '预约诊疗率', unit: '%', desc: '反应预约诊疗开展情况', formula: '预约诊疗人次数/门急诊总人次数×100%', target: 60, actual: 65 },
-            { level: 'outpatient', category: '效率类', code: '3.6', name: '门诊患者满意度', unit: '%', desc: '反应门诊患者满意度', formula: '满意人数/调查总人数×100%', target: 90, actual: 92 },
-            
-            // ========== 住院科室层面指标 ==========
-            { level: 'inpatient', category: '业务类', code: '1.8', name: '床日费', unit: '元', desc: '反应每床日患者平均支付费用', formula: '住院收入/实际占用床日数', target: 800, actual: 820 },
-            { level: 'inpatient', category: '业务类', code: '1.9', name: '床位周转次数', unit: '次', desc: '反应每床位周转病人次数', formula: '出院人数/平均开放床位数', target: 18, actual: 19 },
-            { level: 'inpatient', category: '业务类', code: '1.10', name: '床位使用率', unit: '%', desc: '反应每床位使用效率', formula: '实际占用总床日数/实际开放总床日数×100%', target: 93, actual: 95 },
-            { level: 'inpatient', category: '业务类', code: '1.11', name: '平均住院天数', unit: '天', desc: '反应出院患者平均住院天数', formula: '出院者占用床日数/出院人数', target: 8.5, actual: 8.2 },
-            { level: 'inpatient', category: '成本类', code: '2.6', name: '住院人均支出', unit: '元', desc: '反应住院科室人均支出情况', formula: '住院总支出/住院职工人数', target: 120000, actual: 115000 },
-            { level: 'inpatient', category: '成本类', code: '2.7', name: '百元医疗收入卫生耗材占比', unit: '%', desc: '反应百元医疗收入中卫生材料占比情况', formula: '卫生材料费用/医疗收入*100', target: 15, actual: 14 },
-            { level: 'inpatient', category: '效率类', code: '3.7', name: '每床位占用医疗设备', unit: '元', desc: '反应每床位占用的医疗设备情况', formula: '医疗设备原值/实际开放床位数', target: 50000, actual: 52000 },
-            { level: 'inpatient', category: '效率类', code: '3.8', name: '百元医疗设备医疗收入', unit: '元', desc: '反应医疗设备创收能力', formula: '医疗收入/[（年初医疗设备原值 + 当期医疗设备原值）/2]*100', target: 180, actual: 185 },
-            { level: 'inpatient', category: '效率类', code: '3.9', name: '住院患者满意度', unit: '%', desc: '反应住院患者满意度', formula: '满意人数/调查总人数×100%', target: 92, actual: 94 },
+            {level:'unit',category:'业务类',code:'1.1',name:'医疗收入增长率',unit:'%',formula:'(当期医疗收入/同期医疗收入 -1)*100%'},
+            {level:'unit',category:'业务类',code:'1.2',name:'医疗服务收入占比',unit:'%',formula:'医务性收入/医疗收入×100%'},
+            {level:'unit',category:'业务类',code:'1.3',name:'药品收入占比',unit:'%',formula:'药品收入/医疗收入×100%'},
+            {level:'unit',category:'成本类',code:'2.1',name:'总支出增长率',unit:'%',formula:'(当期总支出/同期总支出 -1)*100%'},
+            {level:'unit',category:'成本类',code:'2.2',name:'医疗支出率',unit:'%',formula:'医疗支出/医疗收入×100%'},
+            {level:'unit',category:'成本类',code:'2.3',name:'人员支出占比',unit:'%',formula:'人员支出/总支出'},
+            {level:'unit',category:'效率类',code:'3.1',name:'人均医疗收入',unit:'元',formula:'医疗收入/在岗职工人数'},
+            {level:'unit',category:'效率类',code:'3.2',name:'人均服务居民数',unit:'人',formula:'辖区居民人数/在岗职工人数'},
+            {level:'unit',category:'效率类',code:'3.3',name:'应收账款周转天数',unit:'天',formula:'[(年初应收账款 + 当期应收账款)/2*365]/医疗收入'},
+            {level:'unit',category:'发展类',code:'4.1',name:'净资产增长率',unit:'%',formula:'(当期净资产/年初净资产 -1)*100%'},
+            {level:'unit',category:'发展类',code:'4.2',name:'固定资产增长率',unit:'%',formula:'(当期固定资产原值/年初固定资产原值 -1)*100%'},
+            {level:'unit',category:'发展类',code:'4.3',name:'每职工科研项目数',unit:'项',formula:'科研项目数/在岗职工人数'},
+            {level:'outpatient',category:'业务类',code:'1.4',name:'门急诊均次费用',unit:'元',formula:'门诊收入/门急诊人次数'},
+            {level:'outpatient',category:'业务类',code:'1.5',name:'复诊率',unit:'%',formula:'复诊人次数/门急诊总人次数×100%'},
+            {level:'outpatient',category:'业务类',code:'1.6',name:'人均门急诊人次',unit:'人次',formula:'门急诊人次/门诊在岗职工人数'},
+            {level:'outpatient',category:'业务类',code:'1.7',name:'检查化验收入占比',unit:'%',formula:'检查化验收入/医疗收入×100%'},
+            {level:'outpatient',category:'成本类',code:'2.4',name:'门诊人均支出',unit:'元',formula:'门诊总支出/门诊职工人数'},
+            {level:'outpatient',category:'成本类',code:'2.5',name:'门诊卫生材料占比',unit:'%',formula:'门诊卫生材料/门诊收入×100%'},
+            {level:'outpatient',category:'效率类',code:'3.4',name:'门诊医师日均接诊',unit:'人次',formula:'门急诊人次/门诊医师数/工作日'},
+            {level:'outpatient',category:'效率类',code:'3.5',name:'预约诊疗率',unit:'%',formula:'预约诊疗人次数/门急诊总人次数×100%'},
+            {level:'outpatient',category:'效率类',code:'3.6',name:'门诊满意度',unit:'%',formula:'满意人数/调查总人数×100%'},
+            {level:'inpatient',category:'业务类',code:'1.8',name:'床日费',unit:'元',formula:'住院收入/实际占用床日数'},
+            {level:'inpatient',category:'业务类',code:'1.9',name:'床位周转次数',unit:'次',formula:'出院人数/平均开放床位数'},
+            {level:'inpatient',category:'业务类',code:'1.10',name:'床位使用率',unit:'%',formula:'实际占用总床日数/实际开放总床日数*100%'},
+            {level:'inpatient',category:'业务类',code:'1.11',name:'平均住院天数',unit:'天',formula:'出院者占用床日数/出院人数'},
+            {level:'inpatient',category:'成本类',code:'2.6',name:'住院人均支出',unit:'元',formula:'住院总支出/住院职工人数'},
+            {level:'inpatient',category:'成本类',code:'2.7',name:'百元医疗收入卫生耗材占比',unit:'%',formula:'卫生材料费用/医疗收入*100'},
+            {level:'inpatient',category:'效率类',code:'3.7',name:'每床位医疗设备',unit:'元',formula:'医疗设备原值/实际开放床位数'},
+            {level:'inpatient',category:'效率类',code:'3.8',name:'百元设备医疗收入',unit:'元',formula:'医疗收入/[(年初医疗设备原值 + 当期医疗设备原值)/2]*100'},
+            {level:'inpatient',category:'效率类',code:'3.9',name:'住院满意度',unit:'%',formula:'满意人数/调查总人数×100%'}
         ];
 
-        // 分类统计
-        const categoryStats = {
-            '业务类': 11,
-            '成本类': 7,
-            '效率类': 9,
-            '发展类': 3
-        };
+        const categoryStats = {'业务类':11,'成本类':7,'效率类':9,'发展类':3};
+        const levelStats = {'unit':12,'outpatient':9,'inpatient':9};
+        const unitTypeStats = {'%':15,'元':7,'人次':3,'天':2,'人':1,'项':1,'次':1};
 
-        // 层面统计
-        const levelStats = {
-            'unit': 12,
-            'outpatient': 9,
-            'inpatient': 9
-        };
-
-        // 单位统计
-        const unitTypeStats = {
-            '%': 15,
-            '元': 7,
-            '人次': 3,
-            '天': 2,
-            '人': 1,
-            '项': 1,
-            '次': 1
-        };
-
-        // ========== ECharts 仪表盘 ==========
+        // 仪表盘
         function initGauges() {
-            // 检查 ECharts 是否加载
-            if (typeof echarts === 'undefined') {
-                console.error('ECharts 未加载，跳过仪表盘初始化');
-                return;
-            }
-            
+            if (typeof echarts === 'undefined') { console.error('ECharts 未加载'); return; }
             const gaugeData = [
-                { id: 'gauge1', name: '医疗收入增长率', target: 10, actual: 8.5, unit: '%' },
-                { id: 'gauge2', name: '床位使用率', target: 93, actual: 95, unit: '%' },
-                { id: 'gauge3', name: '平均住院天数', target: 8.5, actual: 8.2, unit: '天' },
-                { id: 'gauge4', name: '人员支出占比', target: 45, actual: 43, unit: '%' },
-                { id: 'gauge5', name: '门诊满意度', target: 90, actual: 92, unit: '%' }
+                {id:'gauge1',target:10,actual:8.5,unit:'%'},
+                {id:'gauge2',target:93,actual:95,unit:'%'},
+                {id:'gauge3',target:8.5,actual:8.2,unit:'天'},
+                {id:'gauge4',target:45,actual:43,unit:'%'},
+                {id:'gauge5',target:90,actual:92,unit:'%'}
             ];
-
             gaugeData.forEach(g => {
                 const chart = echarts.init(document.getElementById(g.id));
-                const achievement = (g.actual / g.target * 100).toFixed(1);
-                const color = achievement >= 90 ? '#00ff88' : (achievement >= 70 ? '#ffd166' : '#ff4757');
-                
+                const achievement = (g.actual/g.target*100).toFixed(1);
+                const color = achievement>=90?'#00ff88':(achievement>=70?'#ffd166':'#ff4757');
                 chart.setOption({
-                    series: [{
-                        type: 'gauge',
-                        startAngle: 180,
-                        endAngle: 0,
-                        min: 0,
-                        max: g.target * 1.5,
-                        splitNumber: 5,
-                        itemStyle: { color: color },
-                        progress: { show: true, width: 18 },
-                        pointer: { show: false },
-                        axisLine: { lineStyle: { width: 18, color: [[1, 'rgba(255,255,255,0.1)']] } },
-                        axisTick: { show: false },
-                        splitLine: { show: false },
-                        axisLabel: { show: false },
-                        title: { show: false },
-                        detail: {
-                            valueAnimation: true,
-                            offsetCenter: [0, '20%'],
-                            fontSize: 24,
-                            fontWeight: 'bold',
-                            formatter: '{value}' + g.unit,
-                            color: '#fff'
-                        },
-                        data: [{ value: g.actual, name: `目标：${g.target}${g.unit}\n达成：${achievement}%` }]
+                    series:[{type:'gauge',startAngle:180,endAngle:0,min:0,max:g.target*1.5,splitNumber:5,
+                        itemStyle:{color:color},progress:{show:true,width:18},pointer:{show:false},
+                        axisLine:{lineStyle:{width:18,color:[[1,'rgba(255,255,255,0.1)']]}},
+                        axisTick:{show:false},splitLine:{show:false},axisLabel:{show:false},title:{show:false},
+                        detail:{valueAnimation:true,offsetCenter:[0,'20%'],fontSize:22,fontWeight:'bold',
+                            formatter:'{value}'+g.unit,color:'#fff'},
+                        data:[{value:g.actual,name:'目标:'+g.target+g.unit+'\n达成:'+achievement+'%'}]
                     }]
                 });
             });
         }
 
-        // 1. 指标分类分布 - 饼图
-        if (typeof Chart !== 'undefined' && document.getElementById('categoryChart')) {
-            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-            new Chart(categoryCtx, {
-            type: 'doughnut',
-            data: {
-                labels: Object.keys(categoryStats),
-                datasets: [{
-                    data: Object.values(categoryStats),
-                    backgroundColor: [
-                        'rgba(0, 212, 255, 0.8)',
-                        'rgba(247, 37, 133, 0.8)',
-                        'rgba(0, 255, 136, 0.8)',
-                        'rgba(123, 44, 191, 0.8)'
-                    ],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'right',
-                        labels: { color: '#a0a0c0', padding: 15 }
-                    }
-                }
-            }
-        });
-
-        // 2. 层面分布 - 柱状图
-        const levelCtx = document.getElementById('levelChart').getContext('2d');
-        new Chart(levelCtx, {
-            type: 'bar',
-            data: {
-                labels: ['单位层面', '门诊科室', '住院科室'],
-                datasets: [{
-                    label: '指标数量',
-                    data: [12, 9, 9],
-                    backgroundColor: [
-                        'rgba(0, 212, 255, 0.8)',
-                        'rgba(247, 37, 133, 0.8)',
-                        'rgba(0, 255, 136, 0.8)'
-                    ],
-                    borderRadius: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.05)' } },
-                    x: { grid: { display: false } }
-                }
-            }
-        });
-
-        // 3. 趋势图 - 月度趋势
-        const trendCtx = document.getElementById('trendChart').getContext('2d');
-        new Chart(trendCtx, {
-            type: 'line',
-            data: {
-                labels: ['1 月', '2 月', '3 月', '4 月', '5 月', '6 月', '7 月', '8 月', '9 月', '10 月', '11 月', '12 月'],
-                datasets: [
-                    {
-                        label: '医疗收入增长率',
-                        data: [6.2, 6.8, 7.1, 7.5, 7.8, 8.0, 8.2, 8.3, 8.4, 8.5, null, null],
-                        borderColor: '#00d4ff',
-                        backgroundColor: 'rgba(0, 212, 255, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    },
-                    {
-                        label: '床位使用率',
-                        data: [88, 89, 90, 91, 92, 93, 93, 94, 94, 95, null, null],
-                        borderColor: '#00ff88',
-                        backgroundColor: 'rgba(0, 255, 136, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    },
-                    {
-                        label: '平均住院天数',
-                        data: [9.2, 9.0, 8.9, 8.7, 8.6, 8.5, 8.4, 8.3, 8.2, 8.2, null, null],
-                        borderColor: '#f72585',
-                        backgroundColor: 'rgba(247, 37, 133, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'top', labels: { color: '#a0a0c0' } }
-                },
-                scales: {
-                    y: { grid: { color: 'rgba(255, 255, 255, 0.05)' } },
-                    x: { grid: { color: 'rgba(255, 255, 255, 0.05)' } }
-                }
-            }
-        });
-
-        // 4. 单位类型分布 - 极坐标图
-        const unitCtx = document.getElementById('unitChart').getContext('2d');
-        new Chart(unitCtx, {
-            type: 'polarArea',
-            data: {
-                labels: Object.keys(unitTypeStats),
-                datasets: [{
-                    data: Object.values(unitTypeStats),
-                    backgroundColor: [
-                        'rgba(0, 212, 255, 0.7)',
-                        'rgba(247, 37, 133, 0.7)',
-                        'rgba(0, 255, 136, 0.7)',
-                        'rgba(255, 209, 102, 0.7)',
-                        'rgba(123, 44, 191, 0.7)',
-                        'rgba(255, 107, 107, 0.7)',
-                        'rgba(255, 159, 67, 0.7)'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'right', labels: { color: '#a0a0c0' } }
-                },
-                scales: {
-                    r: {
-                        ticks: { backdropColor: 'transparent', color: '#a0a0c0' },
-                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                    }
-                }
-            }
-        });
-
-        // 5. 雷达图 - 指标体系覆盖度
-        const radarCtx = document.getElementById('radarChart').getContext('2d');
-        new Chart(radarCtx, {
-            type: 'radar',
-            data: {
-                labels: ['业务能力', '成本控制', '运营效率', '发展潜力', '财务健康', '服务质量'],
-                datasets: [{
-                    label: '指标覆盖度',
-                    data: [85, 78, 82, 65, 75, 80],
-                    backgroundColor: 'rgba(0, 212, 255, 0.2)',
-                    borderColor: '#00d4ff',
-                    pointBackgroundColor: '#00d4ff'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    r: {
-                        beginAtZero: true,
-                        max: 100,
-                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                        angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
-                        pointLabels: { color: '#a0a0c0' }
-                    }
-                }
-            }
-        });
-
-        // 填充表格
-        let currentLevel = 'all';
-        
-        function renderTable(level = 'all') {
-            const tbody = document.getElementById('metricsTableBody');
-            const filtered = level === 'all' ? metricsData : metricsData.filter(m => m.level === level);
-            let html = '';
-            
-            filtered.forEach((item, index) => {
-                const badgeClass = {
-                    '业务类': 'cat-business',
-                    '成本类': 'cat-cost',
-                    '效率类': 'cat-efficiency',
-                    '发展类': 'cat-development'
-                }[item.category];
-                
-                const levelBadge = {
-                    'unit': '🏥 单位',
-                    'outpatient': '🚪 门诊',
-                    'inpatient': '🛏️ 住院'
-                }[item.level];
-                
-                html += `
-                    <tr>
-                        <td><span class="category-badge ${badgeClass}">${item.category}</span></td>
-                        <td><small>${levelBadge}</small></td>
-                        <td>${item.code}</td>
-                        <td><strong>${item.name}</strong></td>
-                        <td>${item.unit}</td>
-                        <td>${item.desc}</td>
-                        <td><code style="color: #00d4ff; font-size: 0.85em;">${item.formula}</code></td>
-                    </tr>
-                `;
+        // 图表
+        if (typeof Chart !== 'undefined') {
+            new Chart(document.getElementById('categoryChart').getContext('2d'), {
+                type:'doughnut',
+                data:{labels:Object.keys(categoryStats),datasets:[{data:Object.values(categoryStats),
+                    backgroundColor:['rgba(0,212,255,0.8)','rgba(247,37,133,0.8)','rgba(0,255,136,0.8)','rgba(123,44,191,0.8)'],borderWidth:0}]},
+                options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#a0a0c0'}}}}
             });
-            
-            tbody.innerHTML = html;
-            document.getElementById('tableCount').textContent = filtered.length;
-            updateLevelChart(level);
+
+            new Chart(document.getElementById('levelChart').getContext('2d'), {
+                type:'bar',
+                data:{labels:['单位层面','门诊科室','住院科室'],datasets:[{label:'指标数量',data:[12,9,9],
+                    backgroundColor:['rgba(0,212,255,0.8)','rgba(247,37,133,0.8)','rgba(0,255,136,0.8)'],borderRadius:8}]},
+                options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+                    scales:{y:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.1)'}},x:{grid:{display:false}}}}
+            });
+
+            new Chart(document.getElementById('trendChart').getContext('2d'), {
+                type:'line',
+                data:{labels:['1 月','2 月','3 月','4 月','5 月','6 月','7 月','8 月','9 月','10 月','11 月','12 月'],datasets:[
+                    {label:'医疗收入增长率',data:[6.2,6.8,7.1,7.5,7.8,8.0,8.2,8.3,8.4,8.5,null,null],borderColor:'#00d4ff',backgroundColor:'rgba(0,212,255,0.1)',fill:true,tension:0.4},
+                    {label:'床位使用率',data:[88,89,90,91,92,93,93,94,94,95,null,null],borderColor:'#00ff88',backgroundColor:'rgba(0,255,136,0.1)',fill:true,tension:0.4},
+                    {label:'平均住院天数',data:[9.2,9.0,8.9,8.7,8.6,8.5,8.4,8.3,8.2,8.2,null,null],borderColor:'#f72585',backgroundColor:'rgba(247,37,133,0.1)',fill:true,tension:0.4}
+                ]},
+                options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{color:'#a0a0c0'}}},
+                    scales:{y:{grid:{color:'rgba(255,255,255,0.1)'}},x:{grid:{color:'rgba(255,255,255,0.1)'}}}}
+            });
+
+            new Chart(document.getElementById('unitChart').getContext('2d'), {
+                type:'polarArea',
+                data:{labels:Object.keys(unitTypeStats),datasets:[{data:Object.values(unitTypeStats),
+                    backgroundColor:['rgba(0,212,255,0.7)','rgba(247,37,133,0.7)','rgba(0,255,136,0.7)','rgba(255,209,102,0.7)','rgba(123,44,191,0.7)','rgba(255,107,107,0.7)','rgba(255,159,67,0.7)']}]},
+                options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#a0a0c0'}}},
+                    scales:{r:{ticks:{backdropColor:'transparent',color:'#a0a0c0'},grid:{color:'rgba(255,255,255,0.1)'}}}}
+            });
+
+            new Chart(document.getElementById('radarChart').getContext('2d'), {
+                type:'radar',
+                data:{labels:['业务能力','成本控制','运营效率','发展潜力','财务健康','服务质量'],datasets:[{label:'指标覆盖度',data:[85,78,82,65,75,80],
+                    backgroundColor:'rgba(0,212,255,0.2)',borderColor:'#00d4ff',pointBackgroundColor:'#00d4ff'}]},
+                options:{responsive:true,maintainAspectRatio:false,scales:{r:{beginAtZero:true,max:100,grid:{color:'rgba(255,255,255,0.1)'},
+                    angleLines:{color:'rgba(255,255,255,0.1)'},pointLabels:{color:'#a0a0c0'}}}}
+            });
         }
-        
-        // Tab 切换事件
+
+        // 表格
+        function renderTable(level='all') {
+            const tbody = document.getElementById('metricsTableBody');
+            const filtered = level==='all' ? metricsData : metricsData.filter(m=>m.level===level);
+            let html = '';
+            filtered.forEach(item => {
+                const badgeClass = {'业务类':'cat-business','成本类':'cat-cost','效率类':'cat-efficiency','发展类':'cat-development'}[item.category];
+                const levelBadge = {'unit':'🏥 单位','outpatient':'🚪 门诊','inpatient':'🛏️ 住院'}[item.level];
+                html += `<tr><td><span class="category-badge ${badgeClass}">${item.category}</span></td><td><small>${levelBadge}</small></td><td>${item.code}</td><td><strong>${item.name}</strong></td><td>${item.unit}</td><td><code style="color:#00d4ff;font-size:0.85em">${item.formula}</code></td></tr>`;
+            });
+            tbody.innerHTML = html;
+            document.getElementById('totalMetrics').textContent = filtered.length;
+            document.getElementById('unitCount').textContent = filtered.filter(m=>m.level==='unit').length;
+            document.getElementById('outpatientCount').textContent = filtered.filter(m=>m.level==='outpatient').length;
+            document.getElementById('inpatientCount').textContent = filtered.filter(m=>m.level==='inpatient').length;
+        }
+
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
                 this.classList.add('active');
-                currentLevel = this.dataset.level;
-                renderTable(currentLevel);
+                renderTable(this.dataset.level);
             });
-        });
-        
-        function updateLevelChart(level) {
-            const filtered = level === 'all' ? metricsData : metricsData.filter(m => m.level === level);
-            document.getElementById('totalMetrics').textContent = filtered.length;
-            document.getElementById('unitCount').textContent = filtered.filter(m => m.level === 'unit').length;
-            document.getElementById('outpatientCount').textContent = filtered.filter(m => m.level === 'outpatient').length;
-            document.getElementById('inpatientCount').textContent = filtered.filter(m => m.level === 'inpatient').length;
-        }
-        
-        // 打印报告
-        function printReport() {
-            window.print();
-        }
-        
-        // 初始化
-        initGauges();
-        renderTable('all');
-        
-        // 设置当前时间
-        document.getElementById('lastUpdateTime').textContent = new Date().toLocaleString('zh-CN', { 
-            year: 'numeric', 
-            month: '2-digit', 
-            day: '2-digit', 
-            hour: '2-digit', 
-            minute: '2-digit' 
         });
 
-        // 窗口大小变化时重新渲染仪表盘
-        window.addEventListener('resize', () => {
-            ['gauge1', 'gauge2', 'gauge3', 'gauge4', 'gauge5'].forEach(id => {
-                const chart = echarts.getInstanceByDom(document.getElementById(id));
-                if (chart) chart.resize();
-            });
-        });
+        initGauges();
+        renderTable('all');
+        document.getElementById('lastUpdateTime').textContent = new Date().toLocaleString('zh-CN',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
     </script>
 </body>
 </html>
