@@ -790,6 +790,17 @@
             });
         });
 
+        // 初始化输入框数据
+        document.getElementById('outpatientIncome').value = baseData.outpatientIncome;
+        document.getElementById('outpatientVisits').value = baseData.outpatientVisits;
+        document.getElementById('inpatientIncome').value = baseData.inpatientIncome;
+        document.getElementById('bedDays').value = baseData.bedDays;
+        
+        // 显示数据库状态
+        if (baseData.lastUpdate) {
+            document.getElementById('dbStatus').innerHTML = '💾 已加载本地数据 | 最后更新：' + new Date(baseData.lastUpdate).toLocaleString('zh-CN');
+        }
+        
         initGauges();
         renderTree('all');
         document.getElementById('lastUpdateTime').textContent = new Date().toLocaleString('zh-CN',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
