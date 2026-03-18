@@ -16,114 +16,196 @@
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            background: linear-gradient(135deg, #0f0c29 0%, #1a1a2e 50%, #0f3460 100%);
             min-height: 100vh;
             padding: 20px;
             color: #fff;
+            line-height: 1.6;
         }
         .container {
             max-width: 1600px;
             margin: 0 auto;
+            animation: fadeIn 0.6s ease-out;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         .header {
             text-align: center;
-            padding: 40px 20px;
-            margin-bottom: 30px;
-            background: rgba(255, 255, 255, 0.05);
+            padding: 50px 30px;
+            margin-bottom: 35px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(123, 44, 191, 0.05));
             backdrop-filter: blur(10px);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.03) 0%, transparent 70%);
+            animation: shimmer 15s linear infinite;
+        }
+        @keyframes shimmer {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         .header h1 {
-            font-size: 2.8em;
-            background: linear-gradient(135deg, #00d4ff, #7b2cbf, #f72585);
+            font-size: 3em;
+            background: linear-gradient(135deg, #00d4ff 0%, #00ff88 50%, #f72585 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 15px;
+            margin-bottom: 18px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
         }
         .header .subtitle {
-            font-size: 1.3em;
-            color: #a0a0c0;
-            margin-bottom: 15px;
+            font-size: 1.35em;
+            color: #b0b0d0;
+            margin-bottom: 18px;
+            font-weight: 400;
+            position: relative;
+            z-index: 1;
         }
         .header .meta {
-            font-size: 0.9em;
+            font-size: 0.95em;
             color: #8080a0;
+            position: relative;
+            z-index: 1;
         }
         .header .update-time {
-            margin-top: 15px;
-            font-size: 0.9em;
+            margin-top: 18px;
+            font-size: 0.95em;
             color: #00ff88;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
         }
         
-        /* 层面切换 Tabs */
+        /* 层面切换 Tabs - 美化版 */
         .level-tabs {
             display: flex;
-            gap: 15px;
-            margin-bottom: 25px;
+            gap: 12px;
+            margin-bottom: 35px;
             flex-wrap: wrap;
             justify-content: center;
         }
         .tab-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(0, 212, 255, 0.3);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.1);
             color: #a0a0c0;
             padding: 12px 24px;
             border-radius: 25px;
             cursor: pointer;
-            font-size: 1em;
-            transition: all 0.3s;
+            font-size: 0.95em;
+            font-weight: 500;
+            transition: all 0.3s ease;
             backdrop-filter: blur(5px);
+            position: relative;
+            overflow: hidden;
+        }
+        .tab-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
         }
         .tab-btn:hover {
-            background: rgba(0, 212, 255, 0.1);
-            border-color: #00d4ff;
+            border-color: rgba(0, 212, 255, 0.4);
             color: #fff;
+            transform: translateY(-2px);
+        }
+        .tab-btn:hover::before {
+            opacity: 1;
         }
         .tab-btn.active {
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(123, 44, 191, 0.3));
-            border-color: #00d4ff;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(123, 44, 191, 0.2));
+            border-color: rgba(0, 212, 255, 0.5);
             color: #fff;
-            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
+            box-shadow: 0 5px 25px rgba(0, 212, 255, 0.3), inset 0 0 20px rgba(0, 212, 255, 0.1);
         }
         
-        /* 关键指标卡片 */
+        /* 关键指标卡片 - 美化版 */
         .kpi-summary {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 35px;
         }
         .kpi-card {
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(123, 44, 191, 0.1));
-            border: 1px solid rgba(0, 212, 255, 0.2);
-            border-radius: 16px;
-            padding: 25px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.08), rgba(123, 44, 191, 0.08));
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            border-radius: 20px;
+            padding: 28px 20px;
             text-align: center;
-            transition: transform 0.3s, box-shadow 0.3s;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #00d4ff, #7b2cbf, #f72585);
+            opacity: 0;
+            transition: opacity 0.4s;
         }
         .kpi-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 45px rgba(0, 212, 255, 0.2);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.25);
+            border-color: rgba(0, 212, 255, 0.3);
+        }
+        .kpi-card:hover::before {
+            opacity: 1;
         }
         .kpi-card .number {
-            font-size: 3em;
-            font-weight: bold;
-            background: linear-gradient(135deg, #00d4ff, #f72585);
+            font-size: 3.2em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00d4ff, #00ff88, #f72585);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+            margin-bottom: 8px;
         }
         .kpi-card .label {
-            color: #a0a0c0;
-            margin-top: 10px;
-            font-size: 1em;
+            color: #c0c0e0;
+            margin-top: 12px;
+            font-size: 1.05em;
+            font-weight: 500;
+            letter-spacing: 0.5px;
         }
         .kpi-card .unit {
             color: #8080a0;
             font-size: 0.85em;
-            margin-top: 5px;
+            margin-top: 6px;
+            font-weight: 400;
         }
         
         /* 图表区域 */
@@ -134,33 +216,55 @@
             margin-bottom: 30px;
         }
         .chart-card {
-            background: rgba(255, 255, 255, 0.05);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.05));
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 25px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .chart-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), transparent, rgba(123, 44, 191, 0.05));
+            opacity: 0;
+            transition: opacity 0.4s;
+            pointer-events: none;
         }
         .chart-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 45px rgba(0, 212, 255, 0.2);
+            transform: translateY(-6px);
+            box-shadow: 0 15px 50px rgba(0, 212, 255, 0.2);
+            border-color: rgba(0, 212, 255, 0.2);
+        }
+        .chart-card:hover::after {
+            opacity: 1;
         }
         .chart-card h3 {
-            font-size: 1.3em;
-            margin-bottom: 20px;
+            font-size: 1.35em;
+            margin-bottom: 22px;
             color: #00d4ff;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
         }
         .chart-card h3::before {
             content: '';
             display: inline-block;
-            width: 4px;
-            height: 20px;
-            background: linear-gradient(180deg, #00d4ff, #7b2cbf);
-            border-radius: 2px;
+            width: 5px;
+            height: 22px;
+            background: linear-gradient(180deg, #00d4ff, #00ff88, #7b2cbf);
+            border-radius: 3px;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
         }
         .chart-container {
             position: relative;
@@ -170,38 +274,54 @@
             grid-column: 1 / -1;
         }
         
-        /* 仪表盘容器 */
+        /* 仪表盘容器 - 美化版 */
         .gauge-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            gap: 25px;
+            margin-bottom: 40px;
         }
         .gauge-card {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            padding: 20px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 25px 20px;
             text-align: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        }
+        .gauge-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 15px 50px rgba(0, 212, 255, 0.2);
+            border-color: rgba(0, 212, 255, 0.2);
+        }
+        .gauge-card p {
+            font-weight: 500;
+            letter-spacing: 0.3px;
         }
         .gauge-chart {
             width: 100%;
             height: 180px;
         }
         
-        /* 指标表格 */
+        /* 指标表格 - 美化版 */
         .metrics-table {
-            background: rgba(255, 255, 255, 0.05);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.04));
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 25px;
-            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
             overflow-x: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
         }
         .metrics-table h3 {
-            font-size: 1.3em;
-            margin-bottom: 20px;
+            font-size: 1.4em;
+            margin-bottom: 25px;
             color: #00d4ff;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
         table {
             width: 100%;
@@ -209,43 +329,57 @@
             font-size: 0.9em;
         }
         th {
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(123, 44, 191, 0.2));
-            padding: 15px 10px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(123, 44, 191, 0.15));
+            padding: 16px 12px;
             text-align: left;
             color: #00d4ff;
             font-weight: 600;
             border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 0.8px;
         }
         td {
-            padding: 12px 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            color: #e0e0e0;
+            padding: 14px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            color: #d0d0e0;
+            transition: background 0.2s;
         }
         tr:hover td {
-            background: rgba(0, 212, 255, 0.05);
+            background: linear-gradient(90deg, rgba(0, 212, 255, 0.08), rgba(123, 44, 191, 0.08));
+        }
+        tr:last-child td {
+            border-bottom: none;
         }
         .category-badge {
             display: inline-block;
-            padding: 4px 12px;
+            padding: 5px 14px;
             border-radius: 20px;
-            font-size: 0.85em;
+            font-size: 0.8em;
             font-weight: 600;
+            letter-spacing: 0.3px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            text-transform: uppercase;
         }
         .cat-business {
             background: linear-gradient(135deg, #00d4ff, #0099cc);
             color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 212, 255, 0.3);
         }
         .cat-cost {
             background: linear-gradient(135deg, #f72585, #c51162);
             color: #fff;
+            box-shadow: 0 2px 10px rgba(247, 37, 133, 0.3);
         }
         .cat-efficiency {
             background: linear-gradient(135deg, #00ff88, #00cc6a);
             color: #1a1a2e;
+            box-shadow: 0 2px 10px rgba(0, 255, 136, 0.3);
         }
         .cat-development {
             background: linear-gradient(135deg, #7b2cbf, #5a189a);
             color: #fff;
+            box-shadow: 0 2px 10px rgba(123, 44, 191, 0.3);
         }
         
         .footer {
@@ -260,39 +394,46 @@
             text-decoration: none;
         }
         
-        /* 操作按钮区域 */
+        /* 操作按钮区域 - 美化版 */
         .action-buttons {
-            margin-top: 20px;
+            margin-top: 25px;
             display: flex;
-            gap: 15px;
+            gap: 12px;
             justify-content: center;
             flex-wrap: wrap;
         }
         .action-btn {
-            background: rgba(0, 212, 255, 0.2);
-            border: 1px solid #00d4ff;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(0, 212, 255, 0.05));
+            border: 1px solid rgba(0, 212, 255, 0.4);
             color: #fff;
-            padding: 12px 24px;
-            border-radius: 25px;
+            padding: 10px 20px;
+            border-radius: 20px;
             cursor: pointer;
-            font-size: 0.95em;
-            transition: all 0.3s;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         .action-btn:hover {
-            background: rgba(0, 212, 255, 0.3);
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.25), rgba(0, 212, 255, 0.1));
+            border-color: #00d4ff;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
         }
+        .action-btn:active {
+            transform: translateY(0);
+        }
         .action-btn.print {
-            background: rgba(0, 255, 136, 0.2);
-            border-color: #00ff88;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.15), rgba(0, 255, 136, 0.05));
+            border-color: rgba(0, 255, 136, 0.4);
         }
         .action-btn.print:hover {
-            background: rgba(0, 255, 136, 0.3);
-            transform: translateY(-2px);
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.25), rgba(0, 255, 136, 0.1));
+            border-color: #00ff88;
             box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
         }
         
