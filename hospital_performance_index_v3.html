@@ -296,7 +296,10 @@
             <div class="update-time">⚡ 最后更新：<span id="lastUpdateTime"></span></div>
             <div class="action-buttons">
                 <button class="action-btn print" onclick="window.print()">🖨️ 打印报告</button>
+                <button class="action-btn" onclick="document.getElementById('fileInput').click()">📥 导入数据</button>
+                <button class="action-btn" onclick="exportData()">📤 导出数据</button>
                 <button class="action-btn" onclick="location.reload()">🔄 刷新数据</button>
+                <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display:none" onchange="importData(event)">
             </div>
         </div>
 
@@ -424,44 +427,40 @@
                 options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#a0a0c0'}}}}
             });
 
-            // 层面分布 - 二级菜单 + 实际指标数据
-            const levelMetrics = {
-                'unit': {name:'🏥 单位层面',indicators:[{name:'医疗收入增长率',current:8.5,target:10},{name:'医疗服务占比',current:32,target:35},{name:'药品收入占比',current:23,target:25}]},
-                'outpatient': {name:'🚪 门诊科室',indicators:[{name:'门急诊均次费用',current:338,target:350},{name:'复诊率',current:27,target:25},{name:'门诊满意度',current:92,target:90}]},
-                'inpatient': {name:'🛏️ 住院科室',indicators:[{name:'床位使用率',current:95,target:93},{name:'平均住院天数',current:8.2,target:8.5},{name:'住院满意度',current:94,target:92}]}
+            // 层面分布 - 使用实际指标数据
+            const levelData = {
+                '单位层面': {name:'医疗收入增长率',current:8.5,target:10,unit:'%'},
+                '门诊科室': {name:'医疗服务占比',current:32,target:35,unit:'%'},
+                '住院科室': {name:'药品收入占比',current:23,target:25,unit:'%'}
             };
-            let currentLevel = 'all';
-            function renderLevelChart(level='all') {
-                const ctx = document.getElementById('levelChart').getContext('2d');
-                if (window.levelChartInstance) window.levelChartInstance.destroy();
-                let labels, currentData, targetData;
-                if (level === 'all') {
-                    labels = ['单位层面','门诊科室','住院科室'];
-                    currentData = [8.5, 27, 95];
-                    targetData = [10, 25, 93];
-                } else {
-                    const data = levelMetrics[level];
-                    labels = data.indicators.map(i=>i.name);
-                    currentData = data.indicators.map(i=>i.current);
-                    targetData = data.indicators.map(i=>i.target);
+            new Chart(document.getElementById('levelChart').getContext('2d'), {
+                type:'bar',
+                data:{
+                    labels:['单位层面','门诊科室','住院科室'],
+                    datasets:[
+                        {label:'当前值',data:[8.5,32,23],backgroundColor:'rgba(0,212,255,0.8)',borderRadius:8},
+                        {label:'目标值',data:[10,35,25],backgroundColor:'rgba(0,255,136,0.6)',borderRadius:8}
+                    ]
+                },
+                options:{
+                    responsive:true,
+                    maintainAspectRatio:false,
+                    plugins:{
+                        legend:{display:true,position:'top',labels:{color:'#fff'}},
+                        tooltip:{
+                            callbacks:{
+                                label:function(context){
+                                    const labels = ['医疗收入增长率','医疗服务占比','药品收入占比'];
+                                    return labels[context.dataIndex]+': '+context.parsed.y+'%';
+                                }
+                            }
+                        }
+                    },
+                    scales:{
+                        y:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.1)'},ticks:{color:'#fff'}},
+                        x:{grid:{display:false},ticks:{color:'#fff'}}
+                    }
                 }
-                window.levelChartInstance = new Chart(ctx, {
-                    type:'bar',
-                    data:{labels: labels, datasets:[
-                        {label:'当前值',data:currentData,backgroundColor:'rgba(0,212,255,0.8)',borderRadius:8},
-                        {label:'目标值',data:targetData,backgroundColor:'rgba(0,255,136,0.6)',borderRadius:8}
-                    ]},
-                    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top',labels:{color:'#fff'}}},
-                        scales:{y:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.1)'},ticks:{color:'#fff'}},x:{grid:{display:false},ticks:{color:'#fff'}}}}
-                });
-            }
-            renderLevelChart('all');
-            document.querySelectorAll('.level-filter').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.level-filter').forEach(b=>b.classList.remove('active'));
-                    this.classList.add('active');
-                    renderLevelChart(this.dataset.level);
-                });
             });
 
             new Chart(document.getElementById('trendChart').getContext('2d'), {
@@ -564,6 +563,87 @@
             header.classList.toggle('active');
             const items = header.nextElementSibling;
             items.classList.toggle('show');
+        }
+        
+        // 数据导入功能
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const fileName = file.name.toLowerCase();
+            if (fileName.endsWith('.csv')) {
+                importCSV(file);
+            } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+                alert('📊 Excel 文件导入功能需要添加 SheetJS 库\n\n当前支持 CSV 格式导入\n\nCSV 格式示例：\n层面，分类，编号，指标名称，单位，计算公式\nunit,业务类，1.1，医疗收入增长率，%,公式');
+                importCSV(file);
+            } else {
+                alert('❌ 不支持的文件格式！请上传 CSV 或 Excel 文件');
+            }
+            event.target.value = '';
+        }
+        
+        function importCSV(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const text = e.target.result;
+                    const lines = text.trim().split('\n');
+                    const headers = lines[0].split(',');
+                    
+                    if (headers.length < 4) {
+                        alert('❌ CSV 格式不正确！至少需要 4 列数据');
+                        return;
+                    }
+                    
+                    const newMetrics = [];
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = lines[i].split(',');
+                        if (values.length >= 4) {
+                            newMetrics.push({
+                                level: values[0] || 'unit',
+                                category: values[1] || '业务类',
+                                code: values[2] || '',
+                                name: values[3] || '',
+                                unit: values[4] || '',
+                                formula: values[5] || ''
+                            });
+                        }
+                    }
+                    
+                    if (newMetrics.length > 0) {
+                        // 合并数据
+                        metricsData.push(...newMetrics);
+                        renderTree(currentLevel);
+                        alert('✅ 成功导入 ' + newMetrics.length + ' 条数据！');
+                        
+                        // 重新渲染层面分布图
+                        if (window.levelChartInstance) {
+                            renderLevelChart(currentLevel);
+                        }
+                    } else {
+                        alert('⚠️ 未找到有效数据');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert('❌ 导入失败：' + err.message);
+                }
+            };
+            reader.readAsText(file, 'UTF-8');
+        }
+        
+        // 导出数据功能
+        function exportData() {
+            const csv = [
+                ['层面', '分类', '编号', '指标名称', '单位', '计算公式'].join(','),
+                ...metricsData.map(m => [m.level, m.category, m.code, m.name, m.unit, m.formula].join(','))
+            ].join('\n');
+            
+            const blob = new Blob([csv], {type: 'text/csv'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '医院绩效指标_' + new Date().toISOString().slice(0,10) + '.csv';
+            a.click();
         }
 
         document.querySelectorAll('.tab-btn').forEach(btn => {
