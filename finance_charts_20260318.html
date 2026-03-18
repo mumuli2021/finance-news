@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>财经数据可视化 | 2026-03-18</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #0c0c1e 0%, #1a1a3e 50%, #2d1b4e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            padding: 30px 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #00d4ff, #7b2cbf, #f72585);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        .header .date {
+            font-size: 1.2em;
+            color: #a0a0c0;
+        }
+        .header .meta {
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #8080a0;
+        }
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        .chart-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .chart-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 45px rgba(0, 212, 255, 0.2);
+        }
+        .chart-card h3 {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: #00d4ff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .chart-card h3::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(180deg, #00d4ff, #7b2cbf);
+            border-radius: 2px;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(123, 44, 191, 0.1));
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        .stat-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #00d4ff, #f72585);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-card .label {
+            color: #a0a0c0;
+            margin-top: 8px;
+            font-size: 0.95em;
+        }
+        .stat-card .change {
+            margin-top: 8px;
+            font-size: 0.9em;
+        }
+        .stat-card .change.up {
+            color: #00ff88;
+        }
+        .stat-card .change.down {
+            color: #ff4757;
+        }
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #8080a0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 30px;
+        }
+        .footer a {
+            color: #00d4ff;
+            text-decoration: none;
+        }
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2em;
+            color: #a0a0c0;
+        }
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 财经数据可视化中心</h1>
+            <div class="date">2026 年 3 月 18 日</div>
+            <div class="meta">
+                数据来源：web_search | 可视化：Chart.js | 整理：小五 📊
+            </div>
+        </div>
+
+        <!-- 关键指标 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="value">+0.5%</div>
+                <div class="label">上证指数</div>
+                <div class="change up">↑ 早盘上涨</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">+0.8%</div>
+                <div class="label">创业板指</div>
+                <div class="change up">↑ 领涨主板</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">+1.2%</div>
+                <div class="label">恒生科技</div>
+                <div class="change up">↑ 港股走强</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">7.23</div>
+                <div class="label">在岸人民币</div>
+                <div class="change">→ 保持稳定</div>
+            </div>
+        </div>
+
+        <!-- 图表区域 -->
+        <div class="dashboard">
+            <!-- 股市走势 -->
+            <div class="chart-card full-width">
+                <h3>📈 主要指数走势（模拟）</h3>
+                <div class="chart-container">
+                    <canvas id="marketChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 新闻分类 -->
+            <div class="chart-card">
+                <h3>📰 新闻分类分布</h3>
+                <div class="chart-container">
+                    <canvas id="newsCategoryChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 板块热度 -->
+            <div class="chart-card">
+                <h3>🔥 板块热度排行</h3>
+                <div class="chart-container">
+                    <canvas id="sectorHeatChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 涨跌幅对比 -->
+            <div class="chart-card full-width">
+                <h3>📊 今日涨跌幅对比</h3>
+                <div class="chart-container">
+                    <canvas id="changeChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 国际 markets -->
+            <div class="chart-card">
+                <h3>🌍 国际市场概览</h3>
+                <div class="chart-container">
+                    <canvas id="globalChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 商品期货 -->
+            <div class="chart-card">
+                <h3>💰 大宗商品价格</h3>
+                <div class="chart-container">
+                    <canvas id="commodityChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>小五 · 首席数据官</strong> | 2026-03-18</p>
+            <p style="margin-top: 10px; font-size: 0.85em;">
+                数据仅供参考 | <a href="finance_news_20260318.html">查看原始新闻</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // 全局配置
+        Chart.defaults.color = '#a0a0c0';
+        Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+
+        // 1. 股市走势图表
+        const marketCtx = document.getElementById('marketChart').getContext('2d');
+        const marketGradient = marketCtx.createLinearGradient(0, 0, 0, 400);
+        marketGradient.addColorStop(0, 'rgba(0, 212, 255, 0.3)');
+        marketGradient.addColorStop(1, 'rgba(0, 212, 255, 0)');
+
+        new Chart(marketCtx, {
+            type: 'line',
+            data: {
+                labels: ['9:30', '10:00', '10:30', '11:00', '11:30', '13:00', '13:30', '14:00', '14:30', '15:00'],
+                datasets: [{
+                    label: '上证指数',
+                    data: [3020, 3025, 3018, 3028, 3032, 3035, 3038, 3042, 3045, 3048],
+                    borderColor: '#00d4ff',
+                    backgroundColor: marketGradient,
+                    fill: true,
+                    tension: 0.4
+                }, {
+                    label: '创业板指',
+                    data: [1850, 1858, 1855, 1862, 1868, 1872, 1875, 1880, 1885, 1890],
+                    borderColor: '#f72585',
+                    backgroundColor: 'rgba(247, 37, 133, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+
+        // 2. 新闻分类图表
+        const categoryCtx = document.getElementById('newsCategoryChart').getContext('2d');
+        new Chart(categoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['股市', '政策', '国际', '行业', '货币'],
+                datasets: [{
+                    data: [4, 2, 2, 1, 1],
+                    backgroundColor: [
+                        '#00d4ff',
+                        '#7b2cbf',
+                        '#f72585',
+                        '#00ff88',
+                        '#ffd166'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+
+        // 3. 板块热度图表
+        const sectorCtx = document.getElementById('sectorHeatChart').getContext('2d');
+        new Chart(sectorCtx, {
+            type: 'bar',
+            data: {
+                labels: ['人工智能', '新能源汽车', '半导体', '房地产', '金融'],
+                datasets: [{
+                    label: '热度指数',
+                    data: [95, 88, 82, 75, 68],
+                    backgroundColor: [
+                        'rgba(247, 37, 133, 0.8)',
+                        'rgba(0, 212, 255, 0.8)',
+                        'rgba(123, 44, 191, 0.8)',
+                        'rgba(0, 255, 136, 0.8)',
+                        'rgba(255, 209, 102, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // 4. 涨跌幅对比图表
+        const changeCtx = document.getElementById('changeChart').getContext('2d');
+        new Chart(changeCtx, {
+            type: 'bar',
+            data: {
+                labels: ['上证指数', '创业板指', '恒生科技', '布伦特原油', '黄金', '人民币'],
+                datasets: [{
+                    label: '涨跌幅 (%)',
+                    data: [0.5, 0.8, 1.2, 2.0, 0.3, 0.0],
+                    backgroundColor: [
+                        'rgba(0, 212, 255, 0.8)',
+                        'rgba(247, 37, 133, 0.8)',
+                        'rgba(123, 44, 191, 0.8)',
+                        'rgba(0, 255, 136, 0.8)',
+                        'rgba(255, 209, 102, 0.8)',
+                        'rgba(160, 160, 192, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // 5. 国际市场图表
+        const globalCtx = document.getElementById('globalChart').getContext('2d');
+        new Chart(globalCtx, {
+            type: 'radar',
+            data: {
+                labels: ['美股', '欧股', '日股', '港股', 'A 股'],
+                datasets: [{
+                    label: '表现指数',
+                    data: [85, 72, 68, 78, 75],
+                    backgroundColor: 'rgba(0, 212, 255, 0.2)',
+                    borderColor: '#00d4ff',
+                    pointBackgroundColor: '#00d4ff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // 6. 大宗商品图表
+        const commodityCtx = document.getElementById('commodityChart').getContext('2d');
+        new Chart(commodityCtx, {
+            type: 'polarArea',
+            data: {
+                labels: ['原油', '黄金', '铜', '大豆', '天然气'],
+                datasets: [{
+                    data: [2.0, 0.3, -0.5, 0.8, 1.2],
+                    backgroundColor: [
+                        'rgba(0, 255, 136, 0.7)',
+                        'rgba(255, 209, 102, 0.7)',
+                        'rgba(247, 37, 133, 0.7)',
+                        'rgba(0, 212, 255, 0.7)',
+                        'rgba(123, 44, 191, 0.7)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        ticks: {
+                            backdropColor: 'transparent'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
