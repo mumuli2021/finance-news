@@ -6,6 +6,7 @@
     <title>医院绩效指标平台 | 成本效益类指标</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -297,7 +298,7 @@
             <div class="action-buttons">
                 <button class="action-btn print" onclick="window.print()">🖨️ 打印报告</button>
                 <button class="action-btn" onclick="document.getElementById('fileInput').click()">📥 导入数据</button>
-                <button class="action-btn" onclick="exportData()">📤 导出数据</button>
+                <button class="action-btn" onclick="exportPDF()">📄 导出 PDF</button>
                 <button class="action-btn" onclick="location.reload()">🔄 刷新数据</button>
                 <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display:none" onchange="importData(event)">
             </div>
@@ -631,19 +632,29 @@
             reader.readAsText(file, 'UTF-8');
         }
         
-        // 导出数据功能
-        function exportData() {
-            const csv = [
-                ['层面', '分类', '编号', '指标名称', '单位', '计算公式'].join(','),
-                ...metricsData.map(m => [m.level, m.category, m.code, m.name, m.unit, m.formula].join(','))
-            ].join('\n');
+        // 导出 PDF 功能
+        function exportPDF() {
+            const element = document.querySelector('.container');
+            const opt = {
+                margin: [10, 10, 10, 10],
+                filename: '医院绩效指标报告_' + new Date().toISOString().slice(0,10) + '.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+            };
             
-            const blob = new Blob([csv], {type: 'text/csv'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = '医院绩效指标_' + new Date().toISOString().slice(0,10) + '.csv';
-            a.click();
+            // 临时隐藏不需要导出的元素
+            const buttons = document.querySelector('.action-buttons');
+            const tabs = document.querySelector('.level-tabs');
+            if (buttons) buttons.style.display = 'none';
+            if (tabs) tabs.style.display = 'none';
+            
+            html2pdf().set(opt).from(element).save().then(() => {
+                // 恢复显示
+                if (buttons) buttons.style.display = '';
+                if (tabs) tabs.style.display = '';
+            });
         }
 
         document.querySelectorAll('.tab-btn').forEach(btn => {
