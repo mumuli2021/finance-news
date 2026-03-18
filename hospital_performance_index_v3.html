@@ -145,25 +145,112 @@
         .chart-container { position: relative; height: 300px; }
         .full-width { grid-column: 1 / -1; }
         
-        .metrics-table {
+        /* 指标树菜单 */
+        .metrics-tree {
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.1);
             border-radius: 16px;
             padding: 25px;
             margin-bottom: 30px;
-            overflow-x: auto;
         }
-        .metrics-table h3 { font-size: 1.2em; margin-bottom: 20px; color: #00d4ff; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
-        th {
+        .metrics-tree h3 { font-size: 1.2em; margin-bottom: 20px; color: #00d4ff; }
+        .tree-group { margin-bottom: 15px; }
+        .tree-header {
+            background: rgba(0,212,255,0.1);
+            border: 1px solid rgba(0,212,255,0.3);
+            border-radius: 12px;
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+        }
+        .tree-header:hover {
             background: rgba(0,212,255,0.15);
-            padding: 12px 10px;
-            text-align: left;
-            color: #00d4ff;
-            font-weight: 600;
+            border-color: rgba(0,212,255,0.5);
         }
-        td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #d0d0e0; }
-        tr:hover td { background: rgba(0,212,255,0.05); }
+        .tree-header .title {
+            font-size: 1.05em;
+            font-weight: 600;
+            color: #00d4ff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .tree-header .count {
+            background: rgba(0,212,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            color: #fff;
+        }
+        .tree-header .arrow {
+            font-size: 1.2em;
+            transition: transform 0.3s;
+            color: #00d4ff;
+        }
+        .tree-header.active .arrow { transform: rotate(90deg); }
+        .tree-items {
+            display: none;
+            margin-left: 20px;
+        }
+        .tree-items.show { display: block; }
+        .tree-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-left: 3px solid rgba(0,212,255,0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        .tree-item:hover {
+            background: rgba(0,212,255,0.08);
+            border-left-color: #00d4ff;
+            transform: translateX(5px);
+        }
+        .tree-item .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .tree-item .item-name {
+            font-size: 1em;
+            font-weight: 600;
+            color: #fff;
+        }
+        .tree-item .item-code {
+            background: rgba(0,212,255,0.15);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            color: #00d4ff;
+        }
+        .tree-item .item-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .tree-item .detail { font-size: 0.85em; color: #a0a0c0; }
+        .tree-item .detail strong { color: #00ff88; }
+        .tree-item .formula {
+            background: rgba(0,255,136,0.05);
+            border-left: 3px solid rgba(0,255,136,0.3);
+            padding: 10px 15px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.85em;
+            color: #00ff88;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+        }
         
         .category-badge {
             display: inline-block;
@@ -244,9 +331,9 @@
             <div class="chart-card"><h3>🎪 覆盖度</h3><div class="chart-container"><canvas id="radarChart"></canvas></div></div>
         </div>
 
-        <div class="metrics-table">
+        <div class="metrics-tree">
             <h3>📋 完整指标清单</h3>
-            <table><thead><tr><th>分类</th><th>层面</th><th>编号</th><th>指标名称</th><th>单位</th><th>计算公式</th></tr></thead><tbody id="metricsTableBody"></tbody></table>
+            <div id="metricsTreeContent"></div>
         </div>
 
         <div class="footer"><p><strong>小五 · 首席数据官</strong> | 2026-03-18</p></div>
@@ -362,33 +449,90 @@
             });
         }
 
-        // 表格
-        function renderTable(level='all') {
-            const tbody = document.getElementById('metricsTableBody');
+        // 指标树菜单
+        function renderTree(level='all') {
+            const container = document.getElementById('metricsTreeContent');
             const filtered = level==='all' ? metricsData : metricsData.filter(m=>m.level===level);
-            let html = '';
+            
+            // 按层面和分类分组
+            const groups = {};
             filtered.forEach(item => {
-                const badgeClass = {'业务类':'cat-business','成本类':'cat-cost','效率类':'cat-efficiency','发展类':'cat-development'}[item.category];
-                const levelBadge = {'unit':'🏥 单位','outpatient':'🚪 门诊','inpatient':'🛏️ 住院'}[item.level];
-                html += `<tr><td><span class="category-badge ${badgeClass}">${item.category}</span></td><td><small>${levelBadge}</small></td><td>${item.code}</td><td><strong>${item.name}</strong></td><td>${item.unit}</td><td><code style="color:#00d4ff;font-size:0.85em">${item.formula}</code></td></tr>`;
+                const key = `${item.level}-${item.category}`;
+                if (!groups[key]) groups[key] = [];
+                groups[key].push(item);
             });
-            tbody.innerHTML = html;
+            
+            let html = '';
+            const groupNames = {
+                'unit-业务类':'🏥 单位层面 - 业务类指标',
+                'unit-成本类':'🏥 单位层面 - 成本类指标',
+                'unit-效率类':'🏥 单位层面 - 效率类指标',
+                'unit-发展类':'🏥 单位层面 - 发展类指标',
+                'outpatient-业务类':'🚪 门诊层面 - 业务类指标',
+                'outpatient-成本类':'🚪 门诊层面 - 成本类指标',
+                'outpatient-效率类':'🚪 门诊层面 - 效率类指标',
+                'inpatient-业务类':'🛏️ 住院层面 - 业务类指标',
+                'inpatient-成本类':'🛏️ 住院层面 - 成本类指标',
+                'inpatient-效率类':'🛏️ 住院层面 - 效率类指标'
+            };
+            
+            Object.keys(groups).forEach((key, index) => {
+                const items = groups[key];
+                const name = groupNames[key] || key;
+                const isActive = index < 3 ? 'active' : '';
+                const isShow = index < 3 ? 'show' : '';
+                
+                html += `<div class="tree-group">
+                    <div class="tree-header ${isActive}" onclick="toggleTree(this)">
+                        <div class="title">${name}</div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <span class="count">${items.length}个指标</span>
+                            <span class="arrow">▶</span>
+                        </div>
+                    </div>
+                    <div class="tree-items ${isShow}">`;
+                
+                items.forEach(item => {
+                    html += `<div class="tree-item">
+                        <div class="item-header">
+                            <span class="item-name">${item.name}</span>
+                            <span class="item-code">编号：${item.code}</span>
+                        </div>
+                        <div class="item-details">
+                            <div class="detail">单位：<strong>${item.unit}</strong></div>
+                            <div class="detail">层面：<strong>${{'unit':'单位','outpatient':'门诊','inpatient':'住院'}[item.level]}</strong></div>
+                            <div class="detail">分类：<strong>${item.category}</strong></div>
+                        </div>
+                        <div class="formula">📐 ${item.formula}</div>
+                    </div>`;
+                });
+                
+                html += `</div></div>`;
+            });
+            
+            container.innerHTML = html;
             document.getElementById('totalMetrics').textContent = filtered.length;
             document.getElementById('unitCount').textContent = filtered.filter(m=>m.level==='unit').length;
             document.getElementById('outpatientCount').textContent = filtered.filter(m=>m.level==='outpatient').length;
             document.getElementById('inpatientCount').textContent = filtered.filter(m=>m.level==='inpatient').length;
+        }
+        
+        function toggleTree(header) {
+            header.classList.toggle('active');
+            const items = header.nextElementSibling;
+            items.classList.toggle('show');
         }
 
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
                 this.classList.add('active');
-                renderTable(this.dataset.level);
+                renderTree(this.dataset.level);
             });
         });
 
         initGauges();
-        renderTable('all');
+        renderTree('all');
         document.getElementById('lastUpdateTime').textContent = new Date().toLocaleString('zh-CN',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
     </script>
 </body>
