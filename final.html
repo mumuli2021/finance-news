@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎰 彩票数据分析平台</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            animation: fadeIn 0.6s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .header {
+            text-align: center;
+            padding: 40px 30px;
+            margin-bottom: 35px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        }
+        .header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        .header .subtitle {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        .header .update-time {
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #999;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 28px 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+        }
+        .stat-card .number {
+            font-size: 3.2em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+        .stat-card .label {
+            color: #666;
+            font-size: 1.05em;
+            font-weight: 500;
+        }
+        
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            padding: 35px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        .section h2 {
+            font-size: 1.8em;
+            margin-bottom: 25px;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .section h2::before {
+            content: '';
+            display: inline-block;
+            width: 5px;
+            height: 30px;
+            background: linear-gradient(180deg, #667eea, #764ba2);
+            border-radius: 3px;
+        }
+        
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        .chart-container {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 25px;
+            position: relative;
+            height: 350px;
+        }
+        
+        .hot-cold-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .number-grid {
+            display: grid;
+            grid-template-columns: repeat(11, 1fr);
+            gap: 8px;
+            margin-top: 15px;
+        }
+        .number-ball {
+            aspect-ratio: 1;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .number-ball:hover {
+            transform: scale(1.15);
+            z-index: 10;
+        }
+        .ball-hot {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+        .ball-cold {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: white;
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+        }
+        .ball-normal {
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            color: #333;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .ball-blue {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .data-table th,
+        .data-table td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .data-table th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 0.5px;
+        }
+        .data-table tr:hover {
+            background: #f5f6fa;
+        }
+        .data-table .red-ball {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+        .data-table .blue-ball {
+            color: #3498db;
+            font-weight: 600;
+        }
+        
+        .ratio-bars {
+            margin-top: 15px;
+        }
+        .ratio-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            gap: 15px;
+        }
+        .ratio-label {
+            min-width: 80px;
+            font-weight: 600;
+            color: #555;
+        }
+        .ratio-bar {
+            flex: 1;
+            height: 28px;
+            background: #e0e0e0;
+            border-radius: 14px;
+            overflow: hidden;
+            position: relative;
+        }
+        .ratio-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 14px;
+            transition: width 0.6s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+        
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        @media (max-width: 768px) {
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+            .number-grid {
+                grid-template-columns: repeat(8, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎰 彩票数据分析平台</h1>
+            <div class="subtitle">双色球历史数据统计与趋势分析</div>
+            <div class="update-time" id="updateTime">数据更新时间：--</div>
+            <button class="refresh-btn" onclick="location.reload()">
+                🔄 刷新数据
+            </button>
+        </div>
+        
+        <!-- 统计概览 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="number" id="totalRecords">0</div>
+                <div class="label">📊 总期数</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="latestIssue">--</div>
+                <div class="label">🎯 最新期号</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="avgSum">0</div>
+                <div class="label">📈 平均和值</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="hotNumber">--</div>
+                <div class="label">🔥 最热红球</div>
+            </div>
+        </div>
+        
+        <!-- 冷热号分析 -->
+        <div class="section">
+            <h2>🔥 冷热号分析</h2>
+            <div class="hot-cold-grid">
+                <div>
+                    <h3 style="margin-bottom: 15px; color: #667eea;">🔴 红球热度分布</h3>
+                    <div class="number-grid" id="redBallGrid"></div>
+                </div>
+                <div>
+                    <h3 style="margin-bottom: 15px; color: #667eea;">🔵 蓝球热度分布</h3>
+                    <div class="number-grid" id="blueBallGrid" style="grid-template-columns: repeat(8, 1fr);"></div>
+                </div>
+            </div>
+            <div class="chart-grid">
+                <div class="chart-container">
+                    <canvas id="redFreqChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="blueFreqChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 遗漏分析 -->
+        <div class="section">
+            <h2>⏳ 遗漏分析</h2>
+            <div class="chart-grid">
+                <div class="chart-container">
+                    <canvas id="redOmissionChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="blueOmissionChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 奇偶比 & 大小比 -->
+        <div class="section">
+            <h2>📊 形态分析</h2>
+            <div class="chart-grid">
+                <div>
+                    <h3 style="margin-bottom: 20px;">⚖️ 奇偶比分布</h3>
+                    <div class="ratio-bars" id="oddEvenBars"></div>
+                </div>
+                <div>
+                    <h3 style="margin-bottom: 20px;">📏 大小比分布</h3>
+                    <div class="ratio-bars" id="bigSmallBars"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 和值分析 -->
+        <div class="section">
+            <h2>📈 和值分析</h2>
+            <div class="chart-container" style="height: 400px;">
+                <canvas id="sumTrendChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- 最新开奖 -->
+        <div class="section">
+            <h2>🎯 最新开奖</h2>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>期号</th>
+                        <th>红球 1</th>
+                        <th>红球 2</th>
+                        <th>红球 3</th>
+                        <th>红球 4</th>
+                        <th>红球 5</th>
+                        <th>红球 6</th>
+                        <th>蓝球</th>
+                        <th>开奖日期</th>
+                        <th>和值</th>
+                    </tr>
+                </thead>
+                <tbody id="latestDraws">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>const embeddedData = {"updateTime": "2026-03-19 23:15:26", "totalRecords": 2447, "latestIssue": "2026029", "earliestIssue": "2010001", "avgSum": 100.7, "hotRed": 6, "redFrequency": {"1": 478, "2": 484, "3": 431, "4": 427, "5": 429, "6": 485, "7": 452, "8": 454, "9": 473, "10": 457, "11": 416, "12": 437, "13": 457, "14": 482, "15": 437, "16": 419, "17": 478, "18": 455, "19": 461, "20": 446, "21": 397, "22": 483, "23": 427, "24": 443, "25": 441, "26": 477, "27": 459, "28": 400, "29": 412, "30": 409, "31": 420, "32": 450, "33": 406}, "blueFrequency": {"1": 171, "2": 136, "3": 148, "4": 153, "5": 143, "6": 161, "7": 154, "8": 148, "9": 140, "10": 151, "11": 147, "12": 168, "13": 135, "14": 149, "15": 169, "16": 174}, "redOmission": {"1": 1969, "2": 1563, "3": 1277, "4": 1026, "5": 809, "6": 630, "7": 494, "8": 375, "9": 268, "10": 203, "11": 157, "12": 106, "13": 70, "14": 50, "15": 34, "16": 19, "17": 12, "18": 11, "19": 9, "20": 8, "21": 3, "22": 1, "23": 1, "24": 0, "25": 0, "26": 0, "27": 0, "28": 0, "29": 0, "30": 0, "31": 0, "32": 0, "33": 0}, "blueOmission": {"1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0, "10": 0, "11": 0, "12": 0, "13": 0, "14": 0, "15": 0, "16": 0}, "oddEvenRatio": {"3:3": 874, "5:1": 195, "4:2": 604, "2:4": 563, "1:5": 161, "6:0": 29, "0:6": 21}, "bigSmallRatio": {"5:1": 201, "3:3": 876, "4:2": 608, "2:4": 561, "1:5": 163, "0:6": 19, "6:0": 19}, "sumTrend": [{"issue": "2026029", "sum": 129}, {"issue": "2026028", "sum": 87}, {"issue": "2026027", "sum": 101}, {"issue": "2026026", "sum": 103}, {"issue": "2026025", "sum": 87}, {"issue": "2026024", "sum": 89}, {"issue": "2026023", "sum": 74}, {"issue": "2026022", "sum": 141}, {"issue": "2026021", "sum": 128}, {"issue": "2026020", "sum": 103}, {"issue": "2026019", "sum": 96}, {"issue": "2026018", "sum": 120}, {"issue": "2026017", "sum": 88}, {"issue": "2026016", "sum": 85}, {"issue": "2026015", "sum": 110}, {"issue": "2026014", "sum": 119}, {"issue": "2026013", "sum": 74}, {"issue": "2026012", "sum": 75}, {"issue": "2026011", "sum": 92}, {"issue": "2026010", "sum": 83}], "latestDraws": [{"issue": "2026029", "reds": [6, 19, 22, 23, 28, 31], "blue": 5, "date": "2026-01-01", "sum": 129}, {"issue": "2026028", "reds": [2, 6, 9, 17, 25, 28], "blue": 15, "date": "2026-01-01", "sum": 87}, {"issue": "2026027", "reds": [2, 13, 17, 18, 25, 26], "blue": 13, "date": "2026-01-01", "sum": 101}, {"issue": "2026026", "reds": [2, 9, 16, 22, 25, 29], "blue": 3, "date": "2026-03-18", "sum": 103}, {"issue": "2026025", "reds": [2, 3, 15, 20, 23, 24], "blue": 10, "date": "2026-03-16", "sum": 87}, {"issue": "2026024", "reds": [1, 2, 13, 21, 23, 29], "blue": 14, "date": "2026-03-14", "sum": 89}, {"issue": "2026023", "reds": [1, 3, 8, 10, 23, 29], "blue": 6, "date": "2026-01-01", "sum": 74}, {"issue": "2026022", "reds": [15, 18, 23, 25, 28, 32], "blue": 11, "date": "2026-01-01", "sum": 141}, {"issue": "2026021", "reds": [3, 13, 25, 26, 30, 31], "blue": 4, "date": "2026-01-01", "sum": 128}, {"issue": "2026020", "reds": [1, 13, 14, 21, 24, 30], "blue": 2, "date": "2026-01-01", "sum": 103}]};</script>
+    <script src="embedded_data.js"></script>
+    
+    <script>
+        // 使用嵌入的数据
+        let mockData = embeddedData || {};
+        
+        function initPage() {
+        
+        // 初始化红球频率（1-33）
+        for (let i = 1; i <= 33; i++) {
+            mockData.redFrequency[i] = 0;
+            mockData.redOmission[i] = 3;
+        }
+        
+        // 初始化蓝球频率（1-16）
+        for (let i = 1; i <= 16; i++) {
+            mockData.blueFrequency[i] = 0;
+            mockData.blueOmission[i] = 3;
+        }
+        
+        // 示例数据
+        const sampleDraws = [
+            {issue: '2026026', reds: [5, 12, 18, 23, 29, 31], blue: 8, date: '2026-03-18'},
+            {issue: '2026025', reds: [3, 9, 15, 21, 27, 33], blue: 12, date: '2026-03-16'},
+            {issue: '2026024', reds: [7, 14, 19, 22, 28, 30], blue: 5, date: '2026-03-14'}
+        ];
+        
+        // 计算频率
+        sampleDraws.forEach(draw => {
+            draw.reds.forEach(num => mockData.redFrequency[num]++);
+            mockData.blueFrequency[draw.blue]++;
+        });
+        
+        // 更新统计卡片
+        document.getElementById('totalRecords').textContent = mockData.totalRecords;
+        document.getElementById('latestIssue').textContent = mockData.latestIssue;
+        document.getElementById('avgSum').textContent = mockData.avgSum.toFixed(1);
+        document.getElementById('hotNumber').textContent = mockData.hotRed;
+        document.getElementById('updateTime').textContent = '数据更新时间：' + mockData.updateTime;
+        
+        // 渲染红球网格
+        const redBallGrid = document.getElementById('redBallGrid');
+        const maxRedFreq = Math.max(...Object.values(mockData.redFrequency));
+        for (let i = 1; i <= 33; i++) {
+            const ball = document.createElement('div');
+            ball.className = 'number-ball';
+            ball.textContent = i;
+            
+            const freq = mockData.redFrequency[i];
+            if (freq === maxRedFreq && freq > 0) {
+                ball.classList.add('ball-hot');
+                ball.title = `热号：出现${freq}次`;
+            } else if (freq === 0) {
+                ball.classList.add('ball-cold');
+                ball.title = `冷号：未出现`;
+            } else {
+                ball.classList.add('ball-normal');
+                ball.title = `出现${freq}次`;
+            }
+            
+            redBallGrid.appendChild(ball);
+        }
+        
+        // 渲染蓝球网格
+        const blueBallGrid = document.getElementById('blueBallGrid');
+        const maxBlueFreq = Math.max(...Object.values(mockData.blueFrequency));
+        for (let i = 1; i <= 16; i++) {
+            const ball = document.createElement('div');
+            ball.className = 'number-ball ball-blue';
+            ball.textContent = i;
+            ball.style.opacity = mockData.blueFrequency[i] > 0 ? '1' : '0.4';
+            ball.title = `出现${mockData.blueFrequency[i]}次`;
+            blueBallGrid.appendChild(ball);
+        }
+        
+        // 红球频率图表
+        new Chart(document.getElementById('redFreqChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: Object.keys(mockData.redFrequency),
+                datasets: [{
+                    label: '出现次数',
+                    data: Object.values(mockData.redFrequency),
+                    backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                    borderColor: 'rgba(231, 76, 60, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    title: { display: true, text: '红球频率分布', font: { size: 16 } }
+                },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                }
+            }
+        });
+        
+        // 蓝球频率图表
+        new Chart(document.getElementById('blueFreqChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: Object.keys(mockData.blueFrequency),
+                datasets: [{
+                    label: '出现次数',
+                    data: Object.values(mockData.blueFrequency),
+                    backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                    borderColor: 'rgba(52, 152, 219, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    title: { display: true, text: '蓝球频率分布', font: { size: 16 } }
+                },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                }
+            }
+        });
+        
+        // 奇偶比条形图
+        const oddEvenBars = document.getElementById('oddEvenBars');
+        const oddEvenData = {'4:2': 1, '6:0': 1, '2:4': 1};
+        const maxOE = Math.max(...Object.values(oddEvenData));
+        for (const [ratio, count] of Object.entries(oddEvenData)) {
+            const item = document.createElement('div');
+            item.className = 'ratio-item';
+            item.innerHTML = `
+                <div class="ratio-label">${ratio}</div>
+                <div class="ratio-bar">
+                    <div class="ratio-fill" style="width: ${(count/maxOE)*100}%">${count}期</div>
+                </div>
+            `;
+            oddEvenBars.appendChild(item);
+        }
+        
+        // 大小比条形图
+        const bigSmallBars = document.getElementById('bigSmallBars');
+        const bigSmallData = {'4:2': 2, '3:3': 1};
+        const maxBS = Math.max(...Object.values(bigSmallData));
+        for (const [ratio, count] of Object.entries(bigSmallData)) {
+            const item = document.createElement('div');
+            item.className = 'ratio-item';
+            item.innerHTML = `
+                <div class="ratio-label">${ratio}</div>
+                <div class="ratio-bar">
+                    <div class="ratio-fill" style="width: ${(count/maxBS)*100}%">${count}期</div>
+                </div>
+            `;
+            bigSmallBars.appendChild(item);
+        }
+        
+        // 最新开奖表格
+        const latestDraws = document.getElementById('latestDraws');
+        sampleDraws.forEach(draw => {
+            const sum = draw.reds.reduce((a, b) => a + b, 0);
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><strong>${draw.issue}</strong></td>
+                ${draw.reds.map(r => `<td class="red-ball">${r.toString().padStart(2, '0')}</td>`).join('')}
+                <td class="blue-ball"><strong>${draw.blue.toString().padStart(2, '0')}</strong></td>
+                <td>${draw.date}</td>
+                <td><strong>${sum}</strong></td>
+            `;
+            latestDraws.appendChild(row);
+        });
+    </script>
+</body>
+</html>
