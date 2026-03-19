@@ -2,309 +2,115 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>V1 模型选号策略深度分析</title>
+<title>双色球数据分析 - 2448 期完整版</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:Arial,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
 .container{max-width:1400px;margin:0 auto}
-.header{text-align:center;padding:40px;background:rgba(255,255,255,0.95);border-radius:20px;margin-bottom:30px}
+.header{text-align:center;padding:30px;background:rgba(255,255,255,0.95);border-radius:20px;margin-bottom:30px}
 .header h1{color:#667eea;font-size:2.5em;margin-bottom:10px}
-.header p{color:#666;font-size:1.1em}
-.section{background:rgba(255,255,255,0.95);border-radius:20px;padding:35px;margin-bottom:25px;box-shadow:0 10px 40px rgba(0,0,0,0.1)}
-.section h2{color:#667eea;margin-bottom:25px;font-size:1.8em;border-left:5px solid #667eea;padding-left:15px}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:30px}
-.stat-card{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:25px;border-radius:15px;text-align:center}
-.stat-card .num{font-size:3em;font-weight:bold;margin-bottom:10px}
-.stat-card .label{font-size:1em;opacity:0.9}
-.rule-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin:25px 0}
-.rule-card{background:linear-gradient(135deg,#f8f9fa,#e9ecef);border-left:5px solid #667eea;padding:25px;border-radius:12px;transition:all 0.3s}
-.rule-card:hover{transform:translateY(-5px);box-shadow:0 10px 30px rgba(102,126,234,0.2)}
-.rule-card h3{color:#667eea;margin-bottom:15px;font-size:1.3em}
-.rule-card .desc{color:#555;margin-bottom:15px;line-height:1.6}
-.rule-card .data{background:#667eea;color:#fff;padding:10px 20px;border-radius:20px;display:inline-block;font-weight:600;margin-bottom:15px}
-.rule-card .application{background:#e8f5e9;border-left:3px solid #28a745;padding:12px;border-radius:8px;color:#28a745;font-weight:600}
-.strategy-box{background:linear-gradient(135deg,#667eea15,#764ba215);border:2px solid #667eea;border-radius:16px;padding:30px;margin:25px 0}
-.strategy-box h3{color:#667eea;margin-bottom:20px;font-size:1.5em}
-.strategy-steps{list-style:none;padding-left:0}
-.strategy-steps li{padding:12px 0;padding-left:35px;position:relative;border-bottom:1px solid #eee}
-.strategy-steps li:last-child{border-bottom:none}
-.strategy-steps li::before{content:'✓';position:absolute;left:0;color:#28a745;font-weight:bold;font-size:1.3em}
-.chart-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:25px;margin:25px 0}
-.chart-box{background:#f8f9fa;border-radius:16px;padding:25px}
-.chart-box h4{color:#667eea;margin-bottom:15px;text-align:center}
-.bar-chart{display:flex;align-items:flex-end;justify-content:space-around;height:200px;padding:20px 10px;background:#fff;border-radius:10px}
-.bar{width:50px;background:linear-gradient(180deg,#667eea,#764ba2);border-radius:5px 5px 0 0;position:relative;transition:all 0.3s}
-.bar:hover{opacity:0.8}
-.bar span{position:absolute;bottom:-25px;left:50%;transform:translateX(-50%);font-size:12px;white-space:nowrap}
-.bar-value{position:absolute;top:-25px;left:50%;transform:translateX(-50%);font-size:12px;font-weight:bold;color:#667eea}
-.ball{display:inline-block;width:40px;height:40px;border-radius:50%;text-align:center;line-height:40px;margin:5px;font-weight:bold;color:#fff;box-shadow:0 4px 15px rgba(0,0,0,0.2)}
-.ball-red{background:linear-gradient(135deg,#e74c3c,#c0392b)}
-.ball-blue{background:linear-gradient(135deg,#3498db,#2980b9)}
-.ball-hot{background:linear-gradient(135deg,#f39c12,#e67e22)}
-.recommendation{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-radius:16px;padding:35px;margin-top:30px}
-.recommendation h3{text-align:center;margin-bottom:25px;font-size:1.8em}
-.recommendation-numbers{text-align:center;margin:25px 0}
-.recommendation-numbers .ball{width:50px;height:50px;line-height:50px;font-size:1.2em}
-.strategy-tags{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;margin-top:25px}
-.strategy-tag{background:rgba(255,255,255,0.2);padding:15px;border-radius:10px;text-align:center}
-.strategy-tag .icon{font-size:1.5em;margin-bottom:8px}
-.strategy-tag .label{font-size:0.9em;opacity:0.9}
-.strategy-tag .value{font-size:1.1em;font-weight:bold;margin-top:5px}
+.stat-card{background:rgba(255,255,255,0.95);padding:25px;border-radius:15px;text-align:center}
+.stat-card .num{font-size:3em;font-weight:bold;color:#667eea}
+.section{background:rgba(255,255,255,0.95);border-radius:20px;padding:30px;margin-bottom:25px}
+.section h2{color:#667eea;margin-bottom:20px}
+.ball{display:inline-block;width:35px;height:35px;border-radius:50%;text-align:center;line-height:35px;margin:3px;font-weight:bold;color:#fff}
+.red{background:#e74c3c}.blue{background:#3498db}.hot{background:#f39c12}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:20px 0}
+.rule-card{background:linear-gradient(135deg,#f8f9fa,#e9ecef);border-left:4px solid #667eea;padding:20px;border-radius:12px;margin-bottom:20px}
+.rule-card h3{color:#667eea;margin-bottom:10px}
+.rule-card .prob{display:inline-block;background:#667eea;color:#fff;padding:5px 15px;border-radius:20px;font-size:0.9em;margin:10px 0}
+.strategy-box{background:linear-gradient(135deg,#667eea15,#764ba215);border:2px solid #667eea;border-radius:16px;padding:25px;margin:20px 0}
+.recommendation{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-radius:16px;padding:30px;margin-top:20px;text-align:center}
 table{width:100%;border-collapse:collapse;margin:20px 0}
 th,td{padding:12px;text-align:center;border:1px solid #ddd}
 th{background:#667eea;color:#fff}
-tr:nth-child(even){background:#f9f9f9}
-tr:hover{background:#f0f0f0}
-.highlight{background:#ffeb3b!important}
+tr.highlight{background:#ffeb3b}
 </style>
 </head>
 <body>
 <div class="container">
 <div class="header">
-<h1>🎰 V1 模型选号策略深度分析</h1>
-<p>基于 500 期历史数据的关联规律研究 | 更新时间：2026-03-19 21:19</p>
+<h1>🎰 双色球数据分析平台</h1>
+<p>2448 期历史数据 | V1 模型集成 | 更新：2026-03-19 23:18</p>
 </div>
 
 <div class="stats">
-<div class="stat-card"><div class="num">500</div><div class="label">📊 分析期数</div></div>
-<div class="stat-card"><div class="num">70.9%</div><div class="label">🔁 重复号概率</div></div>
-<div class="stat-card"><div class="num">65.8%</div><div class="label">🔗 连号概率</div></div>
-<div class="stat-card"><div class="num">74.8%</div><div class="label">🎯 同尾号概率</div></div>
+<div class="stat-card"><div class="num">2448</div><div class="label">📊 总期数</div></div>
+<div class="stat-card"><div class="num">2026030</div><div class="label">🎯 最新期号</div></div>
+<div class="stat-card"><div class="num">100.7</div><div class="label">📈 平均和值</div></div>
+<div class="stat-card"><div class="num">2</div><div class="label">🔥 最热红球</div></div>
 </div>
 
 <div class="section">
-<h2>📜 V1 模型核心规律</h2>
-<div class="rule-grid">
-<div class="rule-card">
-<h3>🔁 规律 1：相邻期号重复规律</h3>
-<div class="desc">
-<strong>研究发现：</strong>在相邻两期开奖号码中，通常会重复出现 1-2 个红球号码。这是 V1 模型最重要的基础规律之一。
-</div>
-<div class="data">出现概率：70.9%</div>
-<div class="application">
-💡 选号应用：从上期开奖号码中选择 1-2 个作为本期的重复号，可显著提高命中率。
-</div>
-</div>
-
-<div class="rule-card">
-<h3>🔗 规律 2：红球传递规律</h3>
-<div class="desc">
-<strong>研究发现：</strong>上期号码会按一定规律传递到本期，最常见的传递距离为±1-3 个数字。某些号码之间存在高频传递关系。
-</div>
-<div class="data">高频传递：02→02, 22→22, 16→18</div>
-<div class="application">
-💡 选号应用：关注上期号码±1-3 范围内的号码，特别是 02, 09, 16, 17, 22, 23, 25, 26 等高频传递号码。
-</div>
-</div>
-
-<div class="rule-card">
-<h3>📶 规律 3：连号出现规律</h3>
-<div class="desc">
-<strong>研究发现：</strong>约 65.8% 的期数会出现至少 1 组连号（如 14+15 或 22+23）。连号是双色球开奖的常见形态。
-</div>
-<div class="data">出现概率：65.8%</div>
-<div class="application">
-💡 选号应用：选号时考虑包含 1 组连号，如 14+15、22+23、08+09 等。
-</div>
-</div>
-
-<div class="rule-card">
-<h3>🎯 规律 4：同尾号规律</h3>
-<div class="desc">
-<strong>研究发现：</strong>约 74.8% 的期数会出现同尾号（如 06+16+26 或 09+19+29）。同尾号是高频出现的形态。
-</div>
-<div class="data">出现概率：74.8%</div>
-<div class="application">
-💡 选号应用：选号时考虑 1 组同尾号，如 02+22+29 或 06+16+26。
-</div>
-</div>
-
-<div class="rule-card">
-<h3>📈 规律 5：和值集中规律</h3>
-<div class="desc">
-<strong>研究发现：</strong>约 70% 的期数和值集中在 80-120 之间。和值过高或过低的情况较少。
-</div>
-<div class="data">集中概率：约 70%</div>
-<div class="application">
-💡 选号应用：选号时控制和值在 80-120 之间，避免极端和值。
-</div>
-</div>
-
-<div class="rule-card">
-<h3>⚖️ 规律 6：区间平衡规律</h3>
-<div class="desc">
-<strong>研究发现：</strong>三个区间（1-11/12-22/23-33）通常都有号码分布，偏区的情况较少。
-</div>
-<div class="data">平衡概率：约 60%</div>
-<div class="application">
-💡 选号应用：选号时注意区间平衡，三个区间都要有号码，不要偏区。
-</div>
-</div>
+<h2>🔥 红球热度 TOP10</h2>
+<div class="grid">
+<div><span class="ball hot">2</span> 114次</div><div><span class="ball hot">17</span> 108次</div><div><span class="ball hot">9</span> 105次</div><div><span class="ball hot">22</span> 104次</div><div><span class="ball hot">3</span> 102次</div><div><span class="ball hot">8</span> 101次</div><div><span class="ball hot">10</span> 99次</div><div><span class="ball hot">6</span> 98次</div><div><span class="ball hot">18</span> 98次</div><div><span class="ball hot">30</span> 97次</div>
 </div>
 </div>
 
 <div class="section">
-<h2>📊 规律可视化分析</h2>
-<div class="chart-grid">
-<div class="chart-box">
-<h4>相邻期号重复号码分布</h4>
-<div class="bar-chart">
-<div class="bar" style="height:60px"><span class="bar-value">122</span><span>0 个</span></div>
-<div class="bar" style="height:100px"><span class="bar-value">240</span><span>1 个</span></div>
-<div class="bar" style="height:48px"><span class="bar-value">114</span><span>2 个</span></div>
-<div class="bar" style="height:10px"><span class="bar-value">22</span><span>3 个</span></div>
-<div class="bar" style="height:2px"><span class="bar-value">1</span><span>4 个</span></div>
-</div>
-<p style="text-align:center;margin-top:15px;color:#666">最常见：重复 1 个号码（48.1%）</p>
-</div>
-
-<div class="chart-box">
-<h4>传递距离分布</h4>
-<div class="bar-chart">
-<div class="bar" style="height:50px"><span class="bar-value">538</span><span>0</span></div>
-<div class="bar" style="height:100px"><span class="bar-value">1036</span><span>1</span></div>
-<div class="bar" style="height:95px"><span class="bar-value">989</span><span>2</span></div>
-<div class="bar" style="height:92px"><span class="bar-value">962</span><span>3</span></div>
-<div class="bar" style="height:92px"><span class="bar-value">963</span><span>4</span></div>
-</div>
-<p style="text-align:center;margin-top:15px;color:#666">最常见：传递距离 1-3（59%）</p>
-</div>
+<h2>🔵 蓝球热度 TOP5</h2>
+<div class="grid">
+<div><span class="ball blue">15</span> 40次</div><div><span class="ball blue">3</span> 39次</div><div><span class="ball blue">4</span> 37次</div><div><span class="ball blue">6</span> 36次</div><div><span class="ball blue">11</span> 35次</div>
 </div>
 </div>
 
 <div class="section">
-<h2>🎯 V1 模型选号策略</h2>
-<div class="strategy-box">
-<h3>策略 1：重复号 + 连号 + 同尾组合策略 ⭐⭐⭐⭐⭐</h3>
-<ul class="strategy-steps">
-<li>从上期开奖号码中选择 1-2 个作为重复号（70.9% 概率）</li>
-<li>选择 1 组连号（如 14+15 或 22+23），概率 65.8%</li>
-<li>选择 1 组同尾号（如 02+22+26 或 09+19+29），概率 74.8%</li>
-<li>控制和值在 80-120 之间（70% 概率）</li>
-<li>确保三个区间（1-11/12-22/23-33）都有号码分布</li>
-</ul>
+<h2>🎰 V1 模型选号策略</h2>
+<div class="grid">
+<div class="rule-card">
+<h3>🔁 重复号规律</h3>
+<p>相邻期重复 1-2 个号码</p>
+<div class="prob">概率：70.9%</div>
 </div>
-
-<div class="strategy-box">
-<h3>策略 2：传递规律选号策略 ⭐⭐⭐⭐</h3>
-<ul class="strategy-steps">
-<li>关注上期号码的±1-3 范围内的号码</li>
-<li>特别关注高频传递号码：02, 09, 16, 17, 22, 23, 25, 26</li>
-<li>考虑号码自身重复（如 02→02, 22→22）</li>
-<li>注意传递距离分布：距离 1-3 最常见（59%）</li>
-</ul>
+<div class="rule-card">
+<h3>🔗 连号规律</h3>
+<p>约 65.8% 期数出现连号</p>
+<div class="prob">概率：65.8%</div>
 </div>
-
-<div class="strategy-box">
-<h3>策略 3：遗漏回补选号策略 ⭐⭐⭐</h3>
-<ul class="strategy-steps">
-<li>关注长遗漏号码：29 号（7.6 期）、28 号（6.6 期）、21 号（6.6 期）</li>
-<li>这些长遗漏号码可能即将出现回补</li>
-<li>配合热号使用，提高准确率</li>
-<li>注意遗漏周期，避免追冷</li>
-</ul>
+<div class="rule-card">
+<h3>🎯 同尾号规律</h3>
+<p>约 74.8% 期数出现同尾号</p>
+<div class="prob">概率：74.8%</div>
+</div>
+<div class="rule-card">
+<h3>📈 和值规律</h3>
+<p>和值集中在 80-120</p>
+<div class="prob">概率：约 70%</div>
 </div>
 </div>
 
-<div class="recommendation">
-<h3>🎯 基于 V1 模型的本期推荐号码</h3>
-<div class="recommendation-numbers">
+<div class="strategy-box">
+<h3>💡 V1 模型本期推荐</h3>
+<div style="text-align:center;margin:20px 0;">
 <div>
-<span class="ball ball-red">02</span>
-<span class="ball ball-red">09</span>
-<span class="ball ball-red">14</span>
-<span class="ball ball-red">15</span>
-<span class="ball ball-red">22</span>
-<span class="ball ball-red">26</span>
-<span class="ball ball-blue">16</span>
+<span class="ball red">02</span>
+<span class="ball red">09</span>
+<span class="ball red">14</span>
+<span class="ball red">15</span>
+<span class="ball red">22</span>
+<span class="ball red">26</span>
+<span class="ball blue">16</span>
 </div>
-<div class="strategy-tags">
-<div class="strategy-tag">
-<div class="icon">🔁</div>
-<div class="label">重复号</div>
-<div class="value">02, 22</div>
-</div>
-<div class="strategy-tag">
-<div class="icon">🔗</div>
-<div class="label">连号</div>
-<div class="value">14+15</div>
-</div>
-<div class="strategy-tag">
-<div class="icon">🎯</div>
-<div class="label">同尾号</div>
-<div class="value">02+22+26</div>
-</div>
-<div class="strategy-tag">
-<div class="icon">📈</div>
-<div class="label">和值</div>
-<div class="value">88</div>
-</div>
+<p style="margin-top:15px;opacity:0.9;">
+<strong>策略组合：</strong>重复号 02+22 | 连号 14+15 | 同尾号 02+22+26 | 和值 88
+</p>
 </div>
 </div>
 </div>
 
 <div class="section">
-<h2>📋 最新开奖参考（验证 V1 模型）</h2>
+<h2>🎯 最新开奖（10 期）</h2>
 <table>
-<thead>
-<tr><th>期号</th><th>红球</th><th>蓝球</th><th>和值</th><th>重复号</th><th>连号</th><th>同尾号</th></tr>
-</thead>
-<tbody>
-<tr class="highlight">
-<td><strong>2026026</strong></td>
-<td><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">02</span><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">09</span><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">16</span><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">22</span><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">25</span><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">29</span></td>
-<td><span class="ball ball-blue" style="width:32px;height:32px;line-height:32px;font-size:0.9em">03</span></td>
-<td>103</td>
-<td>✅ 02, 22</td>
-<td>❌ 无</td>
-<td>✅ 02, 22, 29</td>
-</tr>
-<tr class="highlight">
-<td><strong>2026025</strong></td>
-<td><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">02</span><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">03</span><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">15</span><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">20</span><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">23</span><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">24</span></td>
-<td><span class="ball ball-blue" style="width:32px;height:32px;line-height:32px;font-size:0.9em">10</span></td>
-<td>87</td>
-<td>✅ 02, 23</td>
-<td>✅ 02+03, 23+24</td>
-<td>✅ 02, 03</td>
-</tr>
-<tr class="highlight">
-<td><strong>2026024</strong></td>
-<td><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">01</span><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">02</span><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">13</span><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">21</span><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">23</span><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">29</span></td>
-<td><span class="ball ball-blue" style="width:32px;height:32px;line-height:32px;font-size:0.9em">14</span></td>
-<td>89</td>
-<td>✅ 01, 29</td>
-<td>❌ 无</td>
-<td>✅ 01, 21, 29</td>
-</tr>
-<tr>
-<td>2026023</td>
-<td><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">01</span><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">03</span><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">08</span><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">10</span><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">23</span><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">29</span></td>
-<td><span class="ball ball-blue" style="width:32px;height:32px;line-height:32px;font-size:0.9em">06</span></td>
-<td>74</td>
-<td>✅ 01, 29</td>
-<td>❌ 无</td>
-<td>✅ 01, 29</td>
-</tr>
-<tr>
-<td>2026022</td>
-<td><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">15</span><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">18</span><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">23</span><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">25</span><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">28</span><span class="ball ball-red" style="width:32px;height:32px;line-height:32px;font-size:0.9em">32</span></td>
-<td><span class="ball ball-blue" style="width:32px;height:32px;line-height:32px;font-size:0.9em">11</span></td>
-<td>141</td>
-<td>✅ 23</td>
-<td>❌ 无</td>
-<td>❌ 无</td>
-</tr>
-</tbody>
+<tr><th>期号</th><th>红球</th><th>蓝球</th><th>和值</th></tr>
+<tr class="highlight"><td><strong>2026030</strong></td><td><span class="ball red">10</span><span class="ball red">11</span><span class="ball red">14</span><span class="ball red">19</span><span class="ball red">22</span><span class="ball red">24</span></td><td><span class="ball blue">04</span></td><td><strong>100</strong></td></tr><tr><td><strong>2026029</strong></td><td><span class="ball red">06</span><span class="ball red">19</span><span class="ball red">22</span><span class="ball red">23</span><span class="ball red">28</span><span class="ball red">31</span></td><td><span class="ball blue">05</span></td><td><strong>129</strong></td></tr><tr><td><strong>2026028</strong></td><td><span class="ball red">02</span><span class="ball red">06</span><span class="ball red">09</span><span class="ball red">17</span><span class="ball red">25</span><span class="ball red">28</span></td><td><span class="ball blue">15</span></td><td><strong>87</strong></td></tr><tr><td><strong>2026027</strong></td><td><span class="ball red">02</span><span class="ball red">13</span><span class="ball red">17</span><span class="ball red">18</span><span class="ball red">25</span><span class="ball red">26</span></td><td><span class="ball blue">13</span></td><td><strong>101</strong></td></tr><tr class="highlight"><td><strong>2026026</strong></td><td><span class="ball red">02</span><span class="ball red">09</span><span class="ball red">16</span><span class="ball red">22</span><span class="ball red">25</span><span class="ball red">29</span></td><td><span class="ball blue">03</span></td><td><strong>103</strong></td></tr><tr class="highlight"><td><strong>2026025</strong></td><td><span class="ball red">02</span><span class="ball red">03</span><span class="ball red">15</span><span class="ball red">20</span><span class="ball red">23</span><span class="ball red">24</span></td><td><span class="ball blue">10</span></td><td><strong>87</strong></td></tr><tr class="highlight"><td><strong>2026024</strong></td><td><span class="ball red">01</span><span class="ball red">02</span><span class="ball red">13</span><span class="ball red">21</span><span class="ball red">23</span><span class="ball red">29</span></td><td><span class="ball blue">14</span></td><td><strong>89</strong></td></tr><tr><td><strong>2026023</strong></td><td><span class="ball red">01</span><span class="ball red">03</span><span class="ball red">08</span><span class="ball red">10</span><span class="ball red">23</span><span class="ball red">29</span></td><td><span class="ball blue">06</span></td><td><strong>74</strong></td></tr><tr><td><strong>2026022</strong></td><td><span class="ball red">15</span><span class="ball red">18</span><span class="ball red">23</span><span class="ball red">25</span><span class="ball red">28</span><span class="ball red">32</span></td><td><span class="ball blue">11</span></td><td><strong>141</strong></td></tr><tr><td><strong>2026021</strong></td><td><span class="ball red">03</span><span class="ball red">13</span><span class="ball red">25</span><span class="ball red">26</span><span class="ball red">30</span><span class="ball red">31</span></td><td><span class="ball blue">04</span></td><td><strong>128</strong></td></tr>
 </table>
 </div>
 
 <div style="text-align:center;padding:30px;color:#fff;opacity:0.8">
-<p>📊 数据来源：中国福利彩票发行管理中心 | V1 模型分析</p>
-<p style="margin-top:10px">🎰 彩票数据库项目 | 更新时间：2026-03-19 21:19</p>
-<p style="margin-top:10px;font-size:0.9em;opacity:0.7">
-⚠️ 本分析基于历史数据统计，仅供参考娱乐。彩票开奖具有随机性，过往数据不代表未来结果。请理性购彩，量力而行。
-</p>
+<p>📊 数据来源：中国福利彩票发行管理中心</p>
+<p>🎰 彩票数据库项目 | 2026-03-19 23:18</p>
 </div>
 </div>
 </body>
