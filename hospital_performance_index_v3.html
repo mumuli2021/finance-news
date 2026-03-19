@@ -105,37 +105,6 @@
             box-shadow: 0 5px 25px rgba(0,212,255,0.3), inset 0 0 20px rgba(0,212,255,0.1);
         }
         
-        /* 权限模式提示 */
-        .permission-banner {
-            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 212, 255, 0.05));
-            border: 2px solid rgba(0, 255, 136, 0.4);
-            border-radius: 16px;
-            padding: 15px 25px;
-            margin-bottom: 25px;
-            text-align: center;
-            display: none;
-            animation: slideDown 0.4s ease-out;
-        }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .permission-banner.show { display: block; }
-        .permission-banner .icon { font-size: 1.5em; margin-right: 10px; }
-        .permission-banner .title { font-weight: 600; font-size: 1.1em; color: #00ff88; }
-        .permission-banner .desc { color: #a0a0c0; margin-top: 5px; font-size: 0.9em; }
-        
-        /* 权限锁定状态 */
-        .tab-btn.locked {
-            opacity: 0.4;
-            cursor: not-allowed;
-            position: relative;
-        }
-        .tab-btn.locked::after {
-            content: '🔒';
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            font-size: 0.7em;
-        }
-        
         .kpi-summary {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -389,17 +358,11 @@
             </div>
         </div>
 
-        <div class="permission-banner" id="permissionBanner">
-            <span class="icon">🔐</span>
-            <span class="title">当前权限：<span id="currentPermission">全部查看</span></span>
-            <div class="desc" id="permissionDesc">可以访问所有层面的指标数据</div>
-        </div>
-
         <div class="level-tabs">
-            <button class="tab-btn active" data-level="all" onclick="switchPermission('all')">📊 全部层面</button>
-            <button class="tab-btn" data-level="unit" onclick="switchPermission('unit')">🏥 单位层面</button>
-            <button class="tab-btn" data-level="outpatient" onclick="switchPermission('outpatient')">🚪 门诊层面</button>
-            <button class="tab-btn" data-level="inpatient" onclick="switchPermission('inpatient')">🛏️ 住院层面</button>
+            <button class="tab-btn active" data-level="all">📊 全部层面</button>
+            <button class="tab-btn" data-level="unit">🏥 单位层面</button>
+            <button class="tab-btn" data-level="outpatient">🚪 门诊层面</button>
+            <button class="tab-btn" data-level="inpatient">🛏️ 住院层面</button>
         </div>
 
         <div class="kpi-summary">
@@ -657,38 +620,10 @@
                 html += `</div></div>`;
             });
             container.innerHTML = html;
-            
-            // 更新 KPI 统计卡片
-            const totalEl = document.getElementById('totalMetrics');
-            const unitCountEl = document.getElementById('unitCount');
-            const outpatientCountEl = document.getElementById('outpatientCount');
-            const inpatientCountEl = document.getElementById('inpatientCount');
-            
-            if (level === 'all') {
-                // 全部层面：显示所有统计
-                totalEl.textContent = metricsData.length;
-                unitCountEl.textContent = metricsData.filter(m=>m.level==='unit').length;
-                outpatientCountEl.textContent = metricsData.filter(m=>m.level==='outpatient').length;
-                inpatientCountEl.textContent = metricsData.filter(m=>m.level==='inpatient').length;
-                
-                // 显示所有卡片
-                totalEl.parentElement.style.display = '';
-                unitCountEl.parentElement.style.display = '';
-                outpatientCountEl.parentElement.style.display = '';
-                inpatientCountEl.parentElement.style.display = '';
-            } else {
-                // 特定层面：只显示当前层面统计
-                totalEl.parentElement.style.display = level === 'unit' || level === 'outpatient' || level === 'inpatient' ? '' : 'none';
-                unitCountEl.parentElement.style.display = level === 'unit' ? '' : 'none';
-                outpatientCountEl.parentElement.style.display = level === 'outpatient' ? '' : 'none';
-                inpatientCountEl.parentElement.style.display = level === 'inpatient' ? '' : 'none';
-                
-                // 更新数字
-                totalEl.textContent = filtered.length;
-                unitCountEl.textContent = filtered.filter(m=>m.level==='unit').length;
-                outpatientCountEl.textContent = filtered.filter(m=>m.level==='outpatient').length;
-                inpatientCountEl.textContent = filtered.filter(m=>m.level==='inpatient').length;
-            }
+            document.getElementById('totalMetrics').textContent = filtered.length;
+            document.getElementById('unitCount').textContent = filtered.filter(m=>m.level==='unit').length;
+            document.getElementById('outpatientCount').textContent = filtered.filter(m=>m.level==='outpatient').length;
+            document.getElementById('inpatientCount').textContent = filtered.filter(m=>m.level==='inpatient').length;
         }
         function toggleTree(header) {
             header.classList.toggle('active');
@@ -696,121 +631,26 @@
             items.classList.toggle('show');
         }
 
-        // 下载 Excel 模板 - 58 个基础数据项
+        // 下载 Excel 模板
         function downloadTemplate() {
             const data = [
-                ['数据项名称', '数值', '单位', '说明'],
-                // 门急诊数据
-                ['门急诊人次', '0', '人次', '门急诊总人次'],
-                ['门急诊人次数', '0', '人次', '同门急诊人次'],
-                ['门急诊人数', '0', '人', '门急诊总人数'],
-                ['门诊收入', '0', '元', '门诊总收入'],
-                ['门诊在岗职工人数', '0', '人', '门诊在岗职工数'],
-                ['门急诊在岗职工人数', '0', '人', '门急诊在岗职工总数'],
-                // 住院数据
-                ['出院人数', '0', '人', '出院总人数'],
-                ['出院者占用床日数', '0', '床日', '出院者占用总床日'],
-                ['住院收入', '0', '元', '住院总收入'],
-                ['住院在岗职工人数', '0', '人', '住院在岗职工数'],
-                ['平均开放床位数', '0', '张', '平均开放床位'],
-                ['期末实际开放床位数', '0', '张', '期末实际开放床位'],
-                ['实际占用床日数', '0', '床日', '实际占用床日'],
-                ['实际占用总床日数', '0', '床日', '实际占用总床日'],
-                // 收入数据
-                ['医疗收入', '0', '元', '医疗总收入'],
-                ['医疗收入不含药品收入', '0', '元', '扣除药品后的医疗收入'],
-                ['医务性收入', '0', '元', '医务性服务收入'],
-                ['检查化验收入', '0', '元', '检查化验收入'],
-                ['药品收入', '0', '元', '药品总收入'],
-                ['药品收入剔除中药饮片收入', '0', '元', '扣除中药饮片后的药品收入'],
-                ['中药饮片收入', '0', '元', '中药饮片收入'],
-                ['当期医疗收入', '0', '元', '当期医疗收入'],
-                ['当期总收入', '0', '元', '当期总收入'],
-                // 支出数据
-                ['总支出', '0', '元', '总支出'],
-                ['当期总支出', '0', '元', '当期总支出'],
-                ['当期药品支出', '0', '元', '当期药品支出'],
-                ['人员支出', '0', '元', '人员总支出'],
-                ['管理费用', '0', '元', '管理费用'],
-                ['能耗支出', '0', '元', '水电气等能耗支出'],
-                ['医疗支出剔除项目公卫科教', '0', '元', '扣除公卫科教后的医疗支出'],
-                ['消耗卫生材料费用剔除项目科教', '0', '元', '扣除科教后的卫生材料费用'],
-                // 资产财务数据
-                ['当期净产资', '0', '元', '当期净资产'],
-                ['负债总额', '0', '元', '负债总额'],
-                ['基本收支结余', '0', '元', '基本收支结余'],
-                ['当期医疗设备净值', '0', '元', '当期医疗设备净值'],
-                ['当期医疗设备原值', '0', '元', '当期医疗设备原值'],
-                ['年初医疗设备原值', '0', '元', '年初医疗设备原值'],
-                ['年初应收账款', '0', '元', '年初应收账款'],
-                ['当期应收账款', '0', '元', '当期应收账款'],
-                ['年初应付药品款', '0', '元', '年初应付药品款'],
-                ['当期应付药品款', '0', '元', '当期应付药品款'],
-                ['年初存货', '0', '元', '年初存货'],
-                ['当期存货', '0', '元', '当期存货'],
-                // 人员与辖区数据
-                ['在岗职工人数', '0', '人', '在岗职工总数'],
-                ['辖区居民人数', '0', '人', '辖区服务居民人数'],
-                // 科研与项目数据
-                ['当期科研项目数', '0', '项', '当期科研项目数量'],
-                ['当期新诊疗项目', '0', '项', '当期新开展诊疗项目数']
+                ['层面', '分类', '编号', '指标名称', '单位', '计算公式'],
+                ['unit', '业务类', '1.1', '医疗收入增长率', '%', '(当期医疗收入/同期医疗收入 -1)*100%'],
+                ['outpatient', '业务类', '1.4', '门急诊均次费用', '元', '门诊收入/门急诊人次数'],
+                ['inpatient', '业务类', '1.8', '床日费', '元', '住院收入/实际占用床日数']
             ];
             const wb = XLSX.utils.book_new();
             const ws = XLSX.utils.aoa_to_sheet(data);
-            ws['!cols'] = [{wch:25},{wch:15},{wch:10},{wch:30}];
-            XLSX.utils.book_append_sheet(wb, ws, '基础数据导入');
-            XLSX.writeFile(wb, '医院基础数据导入模板（58 项）.xlsx');
+            ws['!cols'] = [{wch:12},{wch:10},{wch:8},{wch:20},{wch:8},{wch:40}];
+            XLSX.utils.book_append_sheet(wb, ws, '指标模板');
+            XLSX.writeFile(wb, '医院绩效指标导入模板.xlsx');
         }
 
-        // 数据导入 - 与手工维护格式一致
+        // 数据导入
         function importData(event) {
             const file = event.target.files[0];
             if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, {type: 'array'});
-                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const jsonData = XLSX.utils.sheet_to_json(firstSheet, {header: 1});
-                    
-                    // 解析数据（跳过表头）
-                    const importedData = {};
-                    let successCount = 0;
-                    
-                    for (let i = 1; i < jsonData.length; i++) {
-                        const row = jsonData[i];
-                        if (row.length >= 2) {
-                            const fieldName = row[0];
-                            const value = parseFloat(row[1]);
-                            
-                            // 验证字段名称是否匹配 58 个基础数据项
-                            if (allFields.includes(fieldName) && !isNaN(value)) {
-                                importedData[fieldName] = value;
-                                successCount++;
-                            }
-                        }
-                    }
-                    
-                    if (successCount > 0) {
-                        // 保存到 localStorage（与手工录入相同的存储位置）
-                        const existingData = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
-                        importedData.lastUpdate = new Date().toISOString();
-                        localStorage.setItem(DB_KEY, JSON.stringify({...existingData, ...importedData}));
-                        
-                        alert(`✅ 成功导入 ${successCount} 个数据项！\n\n数据已保存到本地，请点击"🔄 刷新数据"查看。`);
-                        
-                        // 重新加载数据
-                        loadData();
-                    } else {
-                        alert('❌ 未找到有效的数据项\n\n请确保 Excel 文件格式正确：\n第 1 列：数据项名称\n第 2 列：数值');
-                    }
-                } catch (error) {
-                    alert('❌ 文件解析失败：' + error.message);
-                }
-            };
-            reader.readAsArrayBuffer(file);
+            alert('📊 Excel 文件导入功能演示\n\n请按照模板格式准备数据');
             event.target.value = '';
         }
 
@@ -833,56 +673,6 @@
                 if (buttons) buttons.style.display = '';
                 if (tabs) tabs.style.display = '';
             });
-        }
-
-        // 权限切换功能
-        let currentPermission = 'all';
-        function switchPermission(level) {
-            currentPermission = level;
-            
-            // 更新按钮状态
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.dataset.level === level) {
-                    btn.classList.add('active');
-                }
-            });
-            
-            // 更新权限提示横幅
-            const banner = document.getElementById('permissionBanner');
-            const permText = document.getElementById('currentPermission');
-            const permDesc = document.getElementById('permissionDesc');
-            
-            const permissionNames = {
-                'all': '全部查看',
-                'unit': '单位层面',
-                'outpatient': '门诊层面',
-                'inpatient': '住院层面'
-            };
-            
-            const permissionDescs = {
-                'all': '可以访问所有层面的指标数据',
-                'unit': '仅可查看单位层面的指标清单',
-                'outpatient': '仅可查看门诊层面的指标清单',
-                'inpatient': '仅可查看住院层面的指标清单'
-            };
-            
-            permText.textContent = permissionNames[level];
-            permDesc.textContent = permissionDescs[level];
-            banner.classList.add('show');
-            
-            // 如果是全部层面，3 秒后隐藏横幅
-            if (level === 'all') {
-                setTimeout(() => {
-                    banner.classList.remove('show');
-                }, 3000);
-            }
-            
-            // 重新渲染指标树
-            renderTree(level);
-            
-            // 更新图表过滤
-            renderLevelChart(level);
         }
 
         // 初始化
