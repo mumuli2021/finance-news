@@ -118,7 +118,7 @@
                 数据来源：东方财富 | 可视化：Chart.js | 整理：小五 📊
             </div>
             <div class="update-time">
-                ⚡ 最后更新：2026-11-02 09:00 (自动刷新)
+                ⚡ 最后更新：2026-11-02 10:00 (自动刷新)
             </div>
             
             </div>
@@ -127,24 +127,24 @@
         <!-- 关键指标 -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="value">3,599.02</div>
+                <div class="value">3,605.86</div>
                 <div class="label">上证指数</div>
-                <div class="change down">↓ -1.44% (-52.41)</div>
+                <div class="change up">↑ +0.19% (+6.84)</div>
             </div>
             <div class="stat-card">
-                <div class="value">2,413.63</div>
+                <div class="value">2,421.18</div>
                 <div class="label">创业板指</div>
-                <div class="change down">↓ -4.13% (-103.96)</div>
+                <div class="change up">↑ +0.31% (+7.55)</div>
             </div>
             <div class="stat-card">
-                <div class="value">3,754.90</div>
+                <div class="value">3,769.20</div>
                 <div class="label">恒生科技</div>
-                <div class="change up">↑ +0.00% (+0.00)</div>
+                <div class="change up">↑ +0.38% (+14.30)</div>
             </div>
             <div class="stat-card">
-                <div class="value">6.6540</div>
+                <div class="value">6.6550</div>
                 <div class="label">在岸人民币</div>
-                <div class="change down">↓ -0.11%</div>
+                <div class="change up">↑ +0.02%</div>
             </div>
         </div>
 
@@ -220,10 +220,10 @@
         new Chart(marketCtx, {
             type: 'line',
             data: {
-                labels: [],
+                labels: ['09:31', '09:32', '09:33', '09:34', '09:35', '09:36', '09:37', '09:38', '09:39', '09:40', '09:41', '09:42', '09:43', '09:44', '09:45', '09:46', '09:47', '09:48', '09:49', '09:50', '09:51', '09:52', '09:53', '09:54', '09:55', '09:56', '09:57', '09:58', '09:59', '10:00'],
                 datasets: [{
                     label: '上证指数',
-                    data: [],
+                    data: [3599.384, 3603.294, 3603.84, 3600.769, 3595.527, 3598.989, 3609.706, 3603.737, 3604.257, 3603.648, 3603.759, 3614.167, 3609.672, 3609.845, 3609.758, 3608.56, 3607.021, 3607.463, 3604.909, 3608.189, 3612.848, 3613.014, 3614.312, 3614.355, 3607.974, 3606.485, 3601.849, 3604.084, 3605.897, 3606.809],
                     borderColor: '#00d4ff',
                     backgroundColor: marketGradient,
                     fill: true,
@@ -232,7 +232,7 @@
                     pointHoverRadius: 6
                 }, {
                     label: '创业板指',
-                    data: [],
+                    data: [2427.521, 2425.203, 2428.699, 2429.855, 2419.648, 2426.925, 2442.199, 2434.515, 2434.913, 2431.831, 2427.488, 2440.239, 2431.2, 2427.206, 2422.754, 2421.5, 2419.071, 2424.064, 2415.923, 2419.179, 2418.593, 2421.256, 2422.518, 2420.855, 2416.543, 2414.014, 2407.396, 2411.855, 2421.932, 2422.409],
                     borderColor: '#f72585',
                     backgroundColor: 'rgba(247, 37, 133, 0.1)',
                     fill: true,
@@ -321,7 +321,7 @@
                 labels: ['上证指数', '创业板指', '恒生科技', '布伦特原油', '黄金', '人民币'],
                 datasets: [{
                     label: '涨跌幅 (%)',
-                    data: [-1.44, -4.13, 0.0, -2.1, 0.3, -0.11],
+                    data: [0.19, 0.31, 0.38, -2.33, 0.5, 0.02],
                     backgroundColor: [
                         'rgba(0, 212, 255, 0.8)',
                         'rgba(247, 37, 133, 0.8)',
@@ -352,7 +352,7 @@
                 labels: ['道琼斯', '纳斯达克', '标普500', '日经225', '恒生指数'],
                 datasets: [{
                     label: '表现指数',
-                    data: [-1.09, -2.86, -1.82, -0.9, 1.46],
+                    data: [-1.09, -2.86, -1.82, -0.9, 0.61],
                     backgroundColor: 'rgba(0, 212, 255, 0.2)',
                     borderColor: '#00d4ff',
                     pointBackgroundColor: '#00d4ff'
@@ -378,9 +378,9 @@
         new Chart(commodityCtx, {
             type: 'polarArea',
             data: {
-                labels: ['原油 -2.10%', '黄金 +0.30%', '伦铜 +0.20%', '大豆 -0.25%', '美铜 +0.42%'],
+                labels: ['原油 -2.33%', '黄金 +0.50%', '伦铜 +0.47%', '大豆 +0.19%', '美铜 +0.28%'],
                 datasets: [{
-                    data: [-2.1, 0.3, 0.2, -0.25, 0.42],
+                    data: [-2.33, 0.5, 0.47, 0.19, 0.28],
                     backgroundColor: [
                         'rgba(0, 255, 136, 0.7)',
                         'rgba(255, 209, 102, 0.7)',
