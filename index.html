@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>财经数据平台 · Finance Dashboard</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial,sans-serif;
+       background:linear-gradient(135deg,#1F3A3A 0%,#2C4F4F 50%,#3A5F5F 100%);
+       min-height:100vh;padding:40px 20px;color:#fff}
+  .wrap{max-width:1080px;margin:0 auto}
+  header{text-align:center;margin-bottom:44px}
+  .brand{display:inline-flex;align-items:center;justify-content:center;
+         background:#fff;color:#1F3A3A;padding:14px 34px;border-radius:4px;
+         font-size:22px;font-weight:700;letter-spacing:2px;
+         box-shadow:0 8px 28px rgba(0,0,0,.28)}
+  .brand small{display:block;font-size:11px;font-weight:400;letter-spacing:4px;
+               color:#2C2C2C;opacity:.62;margin-top:4px}
+  h1{font-size:34px;font-weight:700;margin:28px 0 10px;letter-spacing:1px}
+  .sub{font-size:15px;opacity:.78;line-height:1.7}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+  .card{background:rgba(255,255,255,.96);border-radius:10px;padding:26px 24px;color:#2C2C2C;
+        box-shadow:0 6px 20px rgba(0,0,0,.18);transition:transform .18s ease,box-shadow .18s ease;
+        display:block;text-decoration:none;border-left:4px solid #1F3A3A}
+  .card:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,.26)}
+  .card .icon{font-size:30px;margin-bottom:10px}
+  .card h3{font-size:17px;color:#1F3A3A;margin-bottom:7px}
+  .card p{font-size:13.5px;color:#555;line-height:1.65}
+  .tag{display:inline-block;margin-top:12px;font-size:11px;padding:3px 10px;border-radius:20px;
+       background:rgba(31,58,58,.09);color:#1F3A3A}
+  .foot{text-align:center;margin-top:44px;font-size:12.5px;opacity:.62;line-height:1.9}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">财经数据平台<small>FINANCE DASHBOARD</small></div>
+    <h1>实时财经数据与可视化</h1>
+    <p class="sub">指数 · 汇率 · 大宗商品 · 新闻分类分布 —— 每小时自动更新</p>
+  </header>
+
+  <div class="grid">
+    <a class="card" href="finance_charts_20261112.html">
+      <div class="icon">📈</div>
+      <h3>今日财经图表</h3>
+      <p>上证指数、创业板指、恒生科技、人民币汇率、国际指数、大宗商品、新闻分类分布，一页看全。</p>
+      <span class="tag">每小时更新</span>
+    </a>
+
+    <a class="card" href="performance_index.html">
+      <div class="icon">🏥</div>
+      <h3>医院绩效指标平台</h3>
+      <p>医院运营绩效指标展示与数据看板。</p>
+      <span class="tag">绩效分析</span>
+    </a>
+
+    <a class="card" href="hospital_performance_index_v4.html">
+      <div class="icon">📊</div>
+      <h3>医院绩效分析 V4</h3>
+      <p>医院绩效平台完整版本，含 KPI 卡片与交互式图表。</p>
+      <span class="tag">完整版</span>
+    </a>
+
+    <a class="card" href="data_input.html">
+      <div class="icon">📝</div>
+      <h3>数据录入</h3>
+      <p>绩效数据录入与维护入口。</p>
+      <span class="tag">数据入口</span>
+    </a>
+
+    <a class="card" href="finance_analysis.html">
+      <div class="icon">🔍</div>
+      <h3>财务分析</h3>
+      <p>财务指标分析与结构拆解。</p>
+      <span class="tag">财务分析</span>
+    </a>
+  </div>
+
+  <div class="foot">
+    数据来源：新浪财经 / 东方财富 / 财联社（真实行情，未做人工修饰）<br>
+    更新频率：每小时 · 仅使用真实 API 数据，不生成任何模拟数值
+  </div>
+</div>
+</body>
+</html>
